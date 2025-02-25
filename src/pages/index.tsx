@@ -55,7 +55,7 @@ function MapComponent() {
 	return (
 		<div className='h-screen'>
 			<div className='absolute z-10 bg-white h-full w-1/4 py-4 px-4 gap-4 flex flex-col items-center shadow'>
-				<p className='text-xl text-center font-bold'>Airports Selected</p>
+				<p className='text-xl text-center font-bold'>Current Route</p>
 				{selectedAirportList.map((airport) => (
 					<p className='text-lg text-center bg-gray-200 px-6 py-2 rounded-xl' key={airport.name}>
 						{airport.name}
