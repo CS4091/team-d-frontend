@@ -1,5 +1,6 @@
 import { GoogleMap, InfoWindow, LoadScript, Marker } from '@react-google-maps/api';
 import { useEffect, useState } from 'react';
+import { MarkerClusterer } from "@googlemaps/markerclusterer";
 
 const containerStyle = {
 	width: '100%',
