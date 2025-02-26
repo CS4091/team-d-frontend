@@ -1,6 +1,5 @@
 import { GoogleMap, InfoWindow, LoadScript, Marker } from '@react-google-maps/api';
 import { useEffect, useState } from 'react';
-import { MarkerClusterer } from "@googlemaps/markerclusterer";
 
 const containerStyle = {
 	width: '100%',
@@ -18,7 +17,9 @@ interface Airport {
 function MapComponent() {
 	const [airports, setAirports] = useState<{ name: string; lat: number; lng: number }[]>([]);
 	const [selectedAirport, setSelectedAirport] = useState<Airport>({ lat: 0, lng: 0, name: 'None' });
-	const [selectedAirportList, setSelectedAirportList] = useState<Airport[]>([]);
+	const [currentPair, setCurrentPair] = useState<Airport[]>([]);
+	const [selectedAirportList, setSelectedAirportList] = useState<Airport[][]>([]);
+	const [createNewPair, setCreateNewPair] = useState(false);
 
 	useEffect(() => {
 		async function fetchAirports() {
@@ -39,30 +40,47 @@ function MapComponent() {
 	}, []);
 
 	const addAirport = (airport: Airport) => {
-		if (selectedAirportList.find((air) => air == airport)) {
+		if (currentPair.find((air) => air == airport)) {
 			return;
 		}
-		setSelectedAirportList([...selectedAirportList, airport]);
+		if (currentPair.length == 1) {
+			setSelectedAirportList([...selectedAirportList, [...currentPair, airport]]);
+			setCurrentPair([]);
+            setCreateNewPair(false)
+		} else {
+			setCurrentPair([airport]);
+		}
 	};
 
 	const removeAirport = (airport: Airport) => {
-		if (!selectedAirportList.find((air) => air == airport)) {
+		if (!currentPair.find((air) => air == airport)) {
 			return;
 		}
-        
-		setSelectedAirportList(selectedAirportList.filter((air) => air != airport));
+
+		setCurrentPair(currentPair.filter((air) => air != airport));
 	};
 
 	return (
 		<div className='h-screen'>
 			<div className='absolute z-10 bg-white h-full w-1/4 py-4 px-4 gap-4 flex flex-col items-center shadow'>
-				<p className='text-xl text-center font-bold'>Current Route</p>
-				{selectedAirportList.map((airport) => (
-					<p className='text-lg text-center bg-gray-200 px-6 py-2 rounded-xl' key={airport.name}>
-						{airport.name}
-					</p>
+				{/* <p className='text-xl text-center font-bold'>Current Route</p> */}
+				{selectedAirportList.map((airport, i) => (
+					<div key={`${airport[0].name}-${airport[1].name}`}>
+						<p className='text-xl text-center px-6 py-2 font-bold'>Route {i + 1}</p>
+						<p className='text-lg text-center bg-gray-200 px-6 py-2 mb-2 rounded-xl'>{airport[0].name}</p>
+						<p className='text-lg text-center bg-gray-200 px-6 py-2 rounded-xl'>{airport[1].name}</p>
+					</div>
 				))}
-				<button className='bg-blue-300 py-2 px-16 rounded-xl font-md hover:bg-blue-400'>Send</button>
+				{!createNewPair && (
+					<button className='bg-blue-500 py-2 px-16 rounded-xl font-md hover:bg-blue-400 text-white' onClick={() => setCreateNewPair(true)}>
+						Create New Pair
+					</button>
+				)}
+				{createNewPair && (
+					<button className='bg-red-400 py-2 px-16 rounded-xl font-md hover:bg-red-300 text-white' onClick={() => setCreateNewPair(false)}>
+						Cancel New Pair
+					</button>
+				)}
 			</div>
 			<GoogleMap
 				mapContainerStyle={containerStyle}
@@ -100,11 +118,18 @@ function MapComponent() {
 						<div className='flex flex-col gap-6 max-w-64'>
 							<p className='text-md font-bold text-center'>{selectedAirport.name}</p>
 							<div className='flex flex-col gap-2'>
-								{!selectedAirportList.find((air) => air == selectedAirport) && (
-									<button className='bg-blue-300 py-2 px-6 rounded-xl font-md hover:bg-blue-400' onClick={() => addAirport(selectedAirport)}>Add to Route</button>
+								{!currentPair.find((air) => air == selectedAirport) && createNewPair && (
+									<button className='bg-blue-300 py-2 px-6 rounded-xl font-md hover:bg-blue-400' onClick={() => addAirport(selectedAirport)}>
+										Add to Pair
+									</button>
 								)}
-								{selectedAirportList.find((air) => air == selectedAirport) && (
-									<button className='bg-red-300 py-2 px-6 rounded-xl font-md hover:bg-red-400' onClick={() => removeAirport(selectedAirport)}>Remove from Route</button>
+								{currentPair.find((air) => air == selectedAirport) && createNewPair && (
+									<button
+										className='bg-red-300 py-2 px-6 rounded-xl font-md hover:bg-red-400'
+										onClick={() => removeAirport(selectedAirport)}
+									>
+										Remove from Pair
+									</button>
 								)}
 							</div>
 						</div>
@@ -124,4 +149,3 @@ const Home = () => {
 };
 
 export default Home;
-
