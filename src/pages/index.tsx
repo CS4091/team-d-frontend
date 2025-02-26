@@ -1,4 +1,4 @@
-import { GoogleMap, InfoWindow, LoadScript, Marker } from '@react-google-maps/api';
+import { GoogleMap, InfoWindow, LoadScript, Marker, Polyline } from '@react-google-maps/api';
 import { useEffect, useState } from 'react';
 
 const containerStyle = {
@@ -34,7 +34,6 @@ function MapComponent() {
 				.filter((airport) => !isNaN(airport.lat) && !isNaN(airport.lng));
 
 			setAirports(parsedAirports);
-			console.log(parsedAirports);
 		}
 		fetchAirports();
 	}, []);
@@ -82,6 +81,7 @@ function MapComponent() {
 					</button>
 				)}
 			</div>
+
 			<GoogleMap
 				mapContainerStyle={containerStyle}
 				center={center}
@@ -110,6 +110,21 @@ function MapComponent() {
 						}}
 					/>
 				))}
+				
+				{selectedAirportList.map((airportPair, index) => (
+					<Polyline
+						key={index}
+						path={[
+							{ lat: airportPair[0].lat, lng: airportPair[0].lng },
+							{ lat: airportPair[1].lat, lng: airportPair[1].lng },
+						]}
+						options={{
+							strokeColor: '#0000FF', 
+							strokeWeight: 3,
+						}}
+					/>
+				))}
+
 				{selectedAirport && selectedAirport.name != 'None' && (
 					<InfoWindow
 						position={{ lat: selectedAirport.lat, lng: selectedAirport.lng }}
