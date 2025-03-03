@@ -45,7 +45,7 @@ function MapComponent() {
 		if (currentPair.length == 1) {
 			setSelectedAirportList([...selectedAirportList, [...currentPair, airport]]);
 			setCurrentPair([]);
-            setCreateNewPair(false)
+			setCreateNewPair(false);
 		} else {
 			setCurrentPair([airport]);
 		}
@@ -60,7 +60,7 @@ function MapComponent() {
 	};
 
 	return (
-		<div className='h-screen'>
+		<div className='h-full'>
 			<div className='absolute z-10 bg-white h-full w-1/4 py-4 px-4 gap-4 flex flex-col items-center shadow'>
 				{/* <p className='text-xl text-center font-bold'>Current Route</p> */}
 				{selectedAirportList.map((airport, i) => (
@@ -110,17 +110,17 @@ function MapComponent() {
 						}}
 					/>
 				))}
-				
+
 				{selectedAirportList.map((airportPair, index) => (
 					<Polyline
 						key={index}
 						path={[
 							{ lat: airportPair[0].lat, lng: airportPair[0].lng },
-							{ lat: airportPair[1].lat, lng: airportPair[1].lng },
+							{ lat: airportPair[1].lat, lng: airportPair[1].lng }
 						]}
 						options={{
-							strokeColor: '#0000FF', 
-							strokeWeight: 3,
+							strokeColor: '#0000FF',
+							strokeWeight: 3
 						}}
 					/>
 				))}
