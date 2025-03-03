@@ -1,5 +1,6 @@
 import { GoogleMap, InfoWindow, LoadScript, Marker, Polyline } from '@react-google-maps/api';
 import { useEffect, useState } from 'react';
+import { FaChevronDown, FaChevronUp } from 'react-icons/fa6';
 
 const containerStyle = {
 	width: '100%',
@@ -20,6 +21,8 @@ function MapComponent() {
 	const [currentPair, setCurrentPair] = useState<Airport[]>([]);
 	const [selectedAirportList, setSelectedAirportList] = useState<Airport[][]>([]);
 	const [createNewPair, setCreateNewPair] = useState(false);
+
+	const [openRoutes, setOpenRoutes] = useState(true);
 
 	useEffect(() => {
 		async function fetchAirports() {
@@ -61,26 +64,41 @@ function MapComponent() {
 
 	return (
 		<div className='h-full'>
-			<div className='absolute z-10 bg-white h-full w-1/4 py-4 px-4 gap-4 flex flex-col items-center shadow'>
-				{/* <p className='text-xl text-center font-bold'>Current Route</p> */}
-				{selectedAirportList.map((airport, i) => (
-					<div key={`${airport[0].name}-${airport[1].name}`}>
-						<p className='text-xl text-center px-6 py-2 font-bold'>Route {i + 1}</p>
-						<p className='text-lg text-center bg-gray-200 px-6 py-2 mb-2 rounded-xl'>{airport[0].name}</p>
-						<p className='text-lg text-center bg-gray-200 px-6 py-2 rounded-xl'>{airport[1].name}</p>
+			<div className='absolute top-24 left-12 z-10 bg-white w-1/6 flex flex-col shadow rounded-xl'>
+				<div className='cursor-pointer rounded-b-xl flex justify-between items-center px-4 py-4' onClick={() => setOpenRoutes(!openRoutes)}>
+					<p className=''>Routes</p>
+					{openRoutes && <FaChevronDown />}
+					{!openRoutes && <FaChevronUp />}
+				</div>
+				{openRoutes && (
+					<div className='overflow-y-scroll bg-gray-100 w-full h-full px-4 py-4 flex flex-col gap-2 rounded-b-xl max-h-96'>
+						{!createNewPair && (
+							<button className='bg-blue-500 py-2 px-16 rounded-xl font-md hover:bg-blue-400 text-white' onClick={() => setCreateNewPair(true)}>
+								Create New Route
+							</button>
+						)}
+						{createNewPair && (
+							<button className='bg-red-400 py-2 px-16 rounded-xl font-md hover:bg-red-300 text-white' onClick={() => setCreateNewPair(false)}>
+								Cancel New Route
+							</button>
+						)}
+						{selectedAirportList.map((airport, i) => (
+							<div key={`${airport[0].name}-${airport[1].name}`} className='flex bg-gray-200 px-4 py-2 rounded-xl gap-5 items-center'>
+								<p className='text-lg py-2 font-bold'>{i + 1}</p>
+								<div className='flex flex-col'>
+									<p className='text-sm'>{airport[0].name}</p>
+									<p className='text-sm'>{airport[1].name}</p>
+								</div>
+							</div>
+						))}
 					</div>
-				))}
-				{!createNewPair && (
-					<button className='bg-blue-500 py-2 px-16 rounded-xl font-md hover:bg-blue-400 text-white' onClick={() => setCreateNewPair(true)}>
-						Create New Pair
-					</button>
-				)}
-				{createNewPair && (
-					<button className='bg-red-400 py-2 px-16 rounded-xl font-md hover:bg-red-300 text-white' onClick={() => setCreateNewPair(false)}>
-						Cancel New Pair
-					</button>
 				)}
 			</div>
+			{createNewPair && (
+				<div className='absolute top-24 left-1/2 transform -translate-x-1/2 bg-white z-10 rounded-xl px-4 py-2 shadow'>
+					<p>Select 2 markers to create route</p>
+				</div>
+			)}
 
 			<GoogleMap
 				mapContainerStyle={containerStyle}
@@ -97,7 +115,12 @@ function MapComponent() {
 							east: 180
 						},
 						strictBounds: false
-					}
+					},
+					fullscreenControl: true,
+					fullscreenControlOptions: {
+						position: google.maps.ControlPosition.RIGHT_CENTER
+					},
+					mapTypeControl: false
 				}}
 			>
 				{airports.map((airport, index) => (
@@ -106,7 +129,19 @@ function MapComponent() {
 						position={{ lat: airport.lat, lng: airport.lng }}
 						title={airport.name}
 						onClick={() => {
-							setSelectedAirport(airport);
+							if (!createNewPair) {
+								setSelectedAirport(airport);
+								return;
+							}
+							if (currentPair.find((air) => air == airport)) {
+								removeAirport(airport);
+							} else {
+								addAirport(airport);
+							}
+						}}
+						icon={{
+							url: `https://maps.google.com/mapfiles/ms/icons/${currentPair.find((air) => air == airport) ? 'blue' : 'red'}-dot.png`,
+							scaledSize: new window.google.maps.Size(40, 40)
 						}}
 					/>
 				))}
@@ -132,7 +167,7 @@ function MapComponent() {
 					>
 						<div className='flex flex-col gap-6 max-w-64'>
 							<p className='text-md font-bold text-center'>{selectedAirport.name}</p>
-							<div className='flex flex-col gap-2'>
+							{/* <div className='flex flex-col gap-2'>
 								{!currentPair.find((air) => air == selectedAirport) && createNewPair && (
 									<button className='bg-blue-300 py-2 px-6 rounded-xl font-md hover:bg-blue-400' onClick={() => addAirport(selectedAirport)}>
 										Add to Pair
@@ -146,7 +181,7 @@ function MapComponent() {
 										Remove from Pair
 									</button>
 								)}
-							</div>
+							</div> */}
 						</div>
 					</InfoWindow>
 				)}
