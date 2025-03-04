@@ -1,3 +1,4 @@
+import Draggable from '@/components/Draggable';
 import { GoogleMap, InfoWindow, LoadScript, Marker, Polyline } from '@react-google-maps/api';
 import { useEffect, useState } from 'react';
 import { FaChevronDown, FaChevronUp } from 'react-icons/fa6';
@@ -63,37 +64,45 @@ function MapComponent() {
 	};
 
 	return (
-		<div className='h-full'>
-			<div className='absolute top-24 left-12 z-10 bg-white w-1/6 flex flex-col shadow rounded-xl'>
-				<div className='cursor-pointer rounded-b-xl flex justify-between items-center px-4 py-4' onClick={() => setOpenRoutes(!openRoutes)}>
-					<p className=''>Routes</p>
-					{openRoutes && <FaChevronDown />}
-					{!openRoutes && <FaChevronUp />}
-				</div>
-				{openRoutes && (
-					<div className='overflow-y-scroll bg-gray-100 w-full h-full px-4 py-4 flex flex-col gap-2 rounded-b-xl max-h-96'>
-						{!createNewPair && (
-							<button className='bg-blue-500 py-2 px-16 rounded-xl font-md hover:bg-blue-400 text-white' onClick={() => setCreateNewPair(true)}>
-								Create New Route
-							</button>
-						)}
-						{createNewPair && (
-							<button className='bg-red-400 py-2 px-16 rounded-xl font-md hover:bg-red-300 text-white' onClick={() => setCreateNewPair(false)}>
-								Cancel New Route
-							</button>
-						)}
-						{selectedAirportList.map((airport, i) => (
-							<div key={`${airport[0].name}-${airport[1].name}`} className='flex bg-gray-200 px-4 py-2 rounded-xl gap-5 items-center'>
-								<p className='text-lg py-2 font-bold'>{i + 1}</p>
-								<div className='flex flex-col'>
-									<p className='text-sm'>{airport[0].name}</p>
-									<p className='text-sm'>{airport[1].name}</p>
-								</div>
-							</div>
-						))}
+		<div className='h-full overflow-hidden'>
+			<Draggable>
+				<div className='absolute z-10 bg-white w-1/6 flex flex-col shadow rounded-xl'>
+					<div className='cursor-pointer rounded-b-xl flex justify-between items-center px-4 py-4' onClick={() => setOpenRoutes(!openRoutes)}>
+						<p className=''>Routes</p>
+						{openRoutes && <FaChevronDown />}
+						{!openRoutes && <FaChevronUp />}
 					</div>
-				)}
-			</div>
+					{openRoutes && (
+						<div className='overflow-y-scroll bg-gray-100 w-full h-full px-4 py-4 flex flex-col gap-2 rounded-b-xl max-h-96'>
+							{!createNewPair && (
+								<button
+									className='bg-blue-500 py-2 px-16 rounded-xl font-md hover:bg-blue-400 text-white'
+									onClick={() => setCreateNewPair(true)}
+								>
+									Create New Route
+								</button>
+							)}
+							{createNewPair && (
+								<button
+									className='bg-red-400 py-2 px-16 rounded-xl font-md hover:bg-red-300 text-white'
+									onClick={() => setCreateNewPair(false)}
+								>
+									Cancel New Route
+								</button>
+							)}
+							{selectedAirportList.map((airport, i) => (
+								<div key={`${airport[0].name}-${airport[1].name}`} className='flex bg-gray-200 px-4 py-2 rounded-xl gap-5 items-center'>
+									<p className='text-lg py-2 font-bold'>{i + 1}</p>
+									<div className='flex flex-col'>
+										<p className='text-sm'>{airport[0].name}</p>
+										<p className='text-sm'>{airport[1].name}</p>
+									</div>
+								</div>
+							))}
+						</div>
+					)}
+				</div>
+			</Draggable>
 			{createNewPair && (
 				<div className='absolute top-24 left-1/2 transform -translate-x-1/2 bg-white z-10 rounded-xl px-4 py-2 shadow'>
 					<p>Select 2 markers to create route</p>
