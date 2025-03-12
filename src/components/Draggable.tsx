@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 
-const Draggable = ({ children }: { children: React.ReactNode }) => {
-	const [position, setPosition] = useState({ x: 100, y: 100 });
+const Draggable = ({ startingPosition, children }: { startingPosition: {x: number, y: number}, children: React.ReactNode }) => {
+	const [position, setPosition] = useState(startingPosition);
 	const draggingRef = useRef(false);
 	const offsetRef = useRef({ x: 0, y: 0 });
 
