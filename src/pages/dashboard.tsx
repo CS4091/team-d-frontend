@@ -1,7 +1,7 @@
 import Draggable from '@/components/Draggable';
-import { GoogleMap, InfoWindow, LoadScript, Marker, Polyline } from '@react-google-maps/api';
-import { useEffect, useState } from 'react';
-import { FaChevronDown, FaChevronUp } from 'react-icons/fa6';
+import { GoogleMap, InfoWindow, LoadScript, Marker } from '@react-google-maps/api';
+import { useEffect, useRef, useState } from 'react';
+import { FaChevronDown, FaChevronUp, FaTrashCan } from 'react-icons/fa6';
 
 const containerStyle = {
 	width: '100%',
@@ -21,10 +21,19 @@ function MapComponent() {
 	const [selectedAirport, setSelectedAirport] = useState<Airport>({ lat: 0, lng: 0, name: 'None' });
 	const [currentPair, setCurrentPair] = useState<Airport[]>([]);
 	const [selectedAirportList, setSelectedAirportList] = useState<Airport[][]>([]);
+	const [polylines, setPolylines] = useState<any[]>([]);
 	const [createNewPair, setCreateNewPair] = useState(false);
 
 	const [openRoutes, setOpenRoutes] = useState(true);
 	const [openInventory, setOpenInventory] = useState(true);
+
+	const [hoveredRoute, setHoveredRoute] = useState<number | null>(null);
+
+	const mapRef = useRef<google.maps.Map | null>(null);
+
+	const handleMapLoad = (map: google.maps.Map) => {
+		mapRef.current = map;
+	};
 
 	useEffect(() => {
 		async function fetchAirports() {
@@ -44,12 +53,27 @@ function MapComponent() {
 	}, []);
 
 	const addAirport = (airport: Airport) => {
+		if (!mapRef.current) return;
 		if (currentPair.find((air) => air == airport)) {
 			return;
 		}
 		if (currentPair.length == 1) {
+			let polyline = new google.maps.Polyline({
+				path: [
+					{ lat: currentPair[0].lat, lng: currentPair[0].lng },
+					{ lat: airport.lat, lng: airport.lng }
+				],
+				strokeColor: '#0000FF',
+				strokeOpacity: 1.0,
+				strokeWeight: 2
+			});
+
+			setPolylines([...polylines, polyline]);
+			polyline.setMap(mapRef.current);
+
 			setSelectedAirportList([...selectedAirportList, [...currentPair, airport]]);
 			setCurrentPair([]);
+
 			setCreateNewPair(false);
 		} else {
 			setCurrentPair([airport]);
@@ -62,6 +86,13 @@ function MapComponent() {
 		}
 
 		setCurrentPair(currentPair.filter((air) => air != airport));
+	};
+
+	const removeRoute = (index: number) => {
+		setSelectedAirportList((prevList) => prevList.filter((_, i) => i !== index));
+
+		polylines[index].setMap(null);
+		setPolylines((prevList) => prevList.filter((_, i) => i !== index));
 	};
 
 	return (
@@ -92,12 +123,28 @@ function MapComponent() {
 								</button>
 							)}
 							{selectedAirportList.map((airport, i) => (
-								<div key={`${airport[0].name}-${airport[1].name}`} className='flex bg-gray-200 px-4 py-2 rounded-xl gap-5 items-center'>
-									<p className='text-lg py-2 font-bold'>{i + 1}</p>
-									<div className='flex flex-col'>
-										<p className='text-sm'>{airport[0].name}</p>
-										<p className='text-sm'>{airport[1].name}</p>
+								<div
+									key={`${airport[0].name}-${airport[1].name}`}
+									onMouseEnter={() => setHoveredRoute(i)}
+									onMouseLeave={() => setHoveredRoute(null)}
+									onClick={() => removeRoute(i)}
+								>
+									<div
+										className={`flex bg-gray-200 px-4 py-2 rounded-xl gap-5 items-center relative cursor-pointer transition-all duration-200 ${
+											hoveredRoute === i ? 'bg-red-500 opacity-60' : ''
+										}`}
+									>
+										<p className='text-lg py-2 font-bold'>{i + 1}</p>
+										<div className='flex flex-col'>
+											<p className='text-sm'>{airport[0].name}</p>
+											<p className='text-sm'>{airport[1].name}</p>
+										</div>
 									</div>
+									{hoveredRoute === i && (
+										<div style={{ position: 'absolute', left: '50%', top: '50%', transform: 'translateY(-50%) translateX(-50%)', cursor: 'pointer' }}>
+											<FaTrashCan color='white' size={24} className='shadow-2xl' />
+										</div>
+									)}
 								</div>
 							))}
 						</div>
@@ -130,6 +177,7 @@ function MapComponent() {
 			)}
 
 			<GoogleMap
+				onLoad={handleMapLoad}
 				mapContainerStyle={containerStyle}
 				center={center}
 				zoom={4}
@@ -175,20 +223,6 @@ function MapComponent() {
 					/>
 				))}
 
-				{selectedAirportList.map((airportPair, index) => (
-					<Polyline
-						key={index}
-						path={[
-							{ lat: airportPair[0].lat, lng: airportPair[0].lng },
-							{ lat: airportPair[1].lat, lng: airportPair[1].lng }
-						]}
-						options={{
-							strokeColor: '#0000FF',
-							strokeWeight: 3
-						}}
-					/>
-				))}
-
 				{selectedAirport && selectedAirport.name != 'None' && (
 					<InfoWindow
 						position={{ lat: selectedAirport.lat, lng: selectedAirport.lng }}
@@ -196,21 +230,6 @@ function MapComponent() {
 					>
 						<div className='flex flex-col gap-6 max-w-64'>
 							<p className='text-md font-bold text-center'>{selectedAirport.name}</p>
-							{/* <div className='flex flex-col gap-2'>
-								{!currentPair.find((air) => air == selectedAirport) && createNewPair && (
-									<button className='bg-blue-300 py-2 px-6 rounded-xl font-md hover:bg-blue-400' onClick={() => addAirport(selectedAirport)}>
-										Add to Pair
-									</button>
-								)}
-								{currentPair.find((air) => air == selectedAirport) && createNewPair && (
-									<button
-										className='bg-red-300 py-2 px-6 rounded-xl font-md hover:bg-red-400'
-										onClick={() => removeAirport(selectedAirport)}
-									>
-										Remove from Pair
-									</button>
-								)}
-							</div> */}
 						</div>
 					</InfoWindow>
 				)}
