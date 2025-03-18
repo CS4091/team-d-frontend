@@ -13,15 +13,15 @@ const Navbar = () => {
 				<Link href='/dashboard' className='rounded-xl hover:text-blue-300'>
 					Dashboard
 				</Link>
-				<Link href='/' className='rounded-xl hover:text-blue-300'>
+				<Link href='/history' className='rounded-xl hover:text-blue-300'>
 					History
 				</Link>
 			</div>
-			<div className='flex gap-4 items-center'>
-				<Link href='/' className='px-5 py-2 rounded-xl hover:bg-[#E1F1FF]'>
+			<div className='flex gap-2 items-center'>
+				<Link href='/login' className='px-5 py-2 rounded-xl hover:bg-[#E1F1FF]'>
 					Log in
 				</Link>
-				<Link href='/' className='px-5 py-2 bg-primary text-white rounded-xl hover:bg-[#8CB4FF]'>
+				<Link href='/signup' className='px-5 py-2 bg-primary text-white rounded-xl hover:bg-[#8CB4FF]'>
 					Sign up
 				</Link>
 			</div>
