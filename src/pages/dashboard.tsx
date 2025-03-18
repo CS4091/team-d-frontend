@@ -1,7 +1,8 @@
-import Draggable from '@/components/Draggable';
+import InventoryPanel from '@/components/panels/InventoryPanel';
+import RoutesPanel from '@/components/panels/RoutesPanel';
+import { Airport } from '@/interfaces/Airport';
 import { GoogleMap, InfoWindow, LoadScript, Marker } from '@react-google-maps/api';
 import { useEffect, useRef, useState } from 'react';
-import { FaChevronDown, FaChevronUp, FaTrashCan } from 'react-icons/fa6';
 
 const containerStyle = {
 	width: '100%',
@@ -10,24 +11,13 @@ const containerStyle = {
 
 const center = { lat: 39.8283, lng: -98.5795 };
 
-interface Airport {
-	lat: number;
-	lng: number;
-	name: string;
-}
-
 function MapComponent() {
 	const [airports, setAirports] = useState<{ name: string; lat: number; lng: number }[]>([]);
 	const [selectedAirport, setSelectedAirport] = useState<Airport>({ lat: 0, lng: 0, name: 'None' });
 	const [currentPair, setCurrentPair] = useState<Airport[]>([]);
 	const [selectedAirportList, setSelectedAirportList] = useState<Airport[][]>([]);
-	const [polylines, setPolylines] = useState<any[]>([]);
+	const [polylines, setPolylines] = useState<google.maps.Polyline[]>([]);
 	const [createNewPair, setCreateNewPair] = useState(false);
-
-	const [openRoutes, setOpenRoutes] = useState(true);
-	const [openInventory, setOpenInventory] = useState(true);
-
-	const [hoveredRoute, setHoveredRoute] = useState<number | null>(null);
 
 	const mapRef = useRef<google.maps.Map | null>(null);
 
@@ -88,88 +78,17 @@ function MapComponent() {
 		setCurrentPair(currentPair.filter((air) => air != airport));
 	};
 
-	const removeRoute = (index: number) => {
-		setSelectedAirportList((prevList) => prevList.filter((_, i) => i !== index));
-
-		polylines[index].setMap(null);
-		setPolylines((prevList) => prevList.filter((_, i) => i !== index));
-	};
-
 	return (
 		<div className='h-full overflow-hidden'>
-			<Draggable startingPosition={{ x: 50, y: 100 }}>
-				<div className='absolute z-10 bg-white w-1/6 min-w-80 flex flex-col shadow rounded-xl'>
-					<div className='cursor-pointer rounded-b-xl flex justify-between items-center px-4 py-4' onClick={() => setOpenRoutes(!openRoutes)}>
-						<p className='font-medium'>Routes</p>
-						{openRoutes && <FaChevronDown />}
-						{!openRoutes && <FaChevronUp />}
-					</div>
-					{openRoutes && (
-						<div className='overflow-y-scroll bg-gray-100 w-full h-full px-4 py-4 flex flex-col gap-2 rounded-b-xl max-h-96'>
-							{!createNewPair && (
-								<button
-									className='bg-primary py-3 px-16 rounded-xl text-white font-bold hover:bg-[#8CB4FF]'
-									onClick={() => setCreateNewPair(true)}
-								>
-									Create Route
-								</button>
-							)}
-							{createNewPair && (
-								<button
-									className='bg-red-400 py-3 px-16 rounded-xl font-md hover:bg-red-300 text-white font-bold'
-									onClick={() => setCreateNewPair(false)}
-								>
-									Cancel New Route
-								</button>
-							)}
-							{selectedAirportList.map((airport, i) => (
-								<div
-									key={`${airport[0].name}-${airport[1].name}`}
-									onMouseEnter={() => setHoveredRoute(i)}
-									onMouseLeave={() => setHoveredRoute(null)}
-									onClick={() => removeRoute(i)}
-								>
-									<div
-										className={`flex bg-gray-200 px-4 py-2 rounded-xl gap-5 items-center relative cursor-pointer transition-all duration-200 ${
-											hoveredRoute === i ? 'bg-red-500 opacity-60' : ''
-										}`}
-									>
-										<p className='text-lg py-2 font-bold'>{i + 1}</p>
-										<div className='flex flex-col'>
-											<p className='text-sm'>{airport[0].name}</p>
-											<p className='text-sm'>{airport[1].name}</p>
-										</div>
-									</div>
-									{hoveredRoute === i && (
-										<div style={{ position: 'absolute', left: '50%', top: '50%', transform: 'translateY(-50%) translateX(-50%)', cursor: 'pointer' }}>
-											<FaTrashCan color='white' size={24} className='shadow-2xl' />
-										</div>
-									)}
-								</div>
-							))}
-						</div>
-					)}
-				</div>
-			</Draggable>
-			<Draggable startingPosition={{ x: 50, y: 300 }}>
-				<div className='absolute z-10 bg-white w-1/6 min-w-80 flex flex-col shadow rounded-xl'>
-					<div className='cursor-pointer rounded-b-xl flex justify-between items-center px-4 py-4' onClick={() => setOpenInventory(!openInventory)}>
-						<p className='font-medium'>Inventory</p>
-						{openInventory && <FaChevronDown />}
-						{!openInventory && <FaChevronUp />}
-					</div>
-					{openInventory && (
-						<div className='overflow-y-scroll bg-gray-100 w-full h-full px-4 py-4 flex flex-col gap-2 rounded-b-xl max-h-96'>
-							<p>Time (mins)</p>
-							<input type='number' />
-							<p>Fuel</p>
-							<input type='number' />
-							<p>Personnel</p>
-							<input type='number' />
-						</div>
-					)}
-				</div>
-			</Draggable>
+			<RoutesPanel
+				selectedAirportList={selectedAirportList}
+				setSelectedAirportList={setSelectedAirportList}
+				polylines={polylines}
+				setPolylines={setPolylines}
+				createNewPair={createNewPair}
+				setCreateNewPair={setCreateNewPair}
+			/>
+			<InventoryPanel />
 			{createNewPair && (
 				<div className='absolute top-24 left-1/2 transform -translate-x-1/2 bg-white z-10 rounded-xl px-4 py-2 shadow'>
 					<p>Select 2 markers to create route</p>
