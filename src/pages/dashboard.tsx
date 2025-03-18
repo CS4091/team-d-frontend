@@ -3,10 +3,11 @@ import RoutesPanel from '@/components/panels/RoutesPanel';
 import { Airport } from '@/interfaces/Airport';
 import { GoogleMap, InfoWindow, LoadScript, Marker } from '@react-google-maps/api';
 import { useEffect, useRef, useState } from 'react';
+import api from '@/lib/axiosConfig';
 
 const containerStyle = {
 	width: '100%',
-	height: '100%'
+	height: '100%',
 };
 
 const center = { lat: 39.8283, lng: -98.5795 };
@@ -27,19 +28,25 @@ function MapComponent() {
 
 	useEffect(() => {
 		async function fetchAirports() {
-			const response = await fetch('/data/airports.csv');
-			const text = await response.text();
-			const rows = text.split('\n').slice(1);
-			const parsedAirports = rows
-				.map((row) => {
-					const cols = row.split(',');
-					return { name: cols[3], lat: parseFloat(cols[4]), lng: parseFloat(cols[5]) };
-				})
-				.filter((airport) => !isNaN(airport.lat) && !isNaN(airport.lng));
-
-			setAirports(parsedAirports);
+			// const response = await fetch('/data/airports.csv');
+			// const text = await response.text();
+			// const rows = text.split('\n').slice(1);
+			// const parsedAirports = rows
+			// 	.map((row) => {
+			// 		const cols = row.split(',');
+			// 		return { name: cols[3], lat: parseFloat(cols[4]), lng: parseFloat(cols[5]) };
+			// 	})
+			// 	.filter((airport) => !isNaN(airport.lat) && !isNaN(airport.lng));
+            // setAirports(parsedAirports)
 		}
-		fetchAirports();
+		// fetchAirports();
+        api.get('/aviation/airports')
+        .then((resp) => {
+            setAirports(resp.data);
+        })
+        .catch((err) => {
+            console.log(err);
+        });
 	}, []);
 
 	const addAirport = (airport: Airport) => {
@@ -51,11 +58,11 @@ function MapComponent() {
 			let polyline = new google.maps.Polyline({
 				path: [
 					{ lat: currentPair[0].lat, lng: currentPair[0].lng },
-					{ lat: airport.lat, lng: airport.lng }
+					{ lat: airport.lat, lng: airport.lng },
 				],
 				strokeColor: '#0000FF',
 				strokeOpacity: 1.0,
-				strokeWeight: 2
+				strokeWeight: 2,
 			});
 
 			setPolylines([...polylines, polyline]);
@@ -79,7 +86,7 @@ function MapComponent() {
 	};
 
 	return (
-		<div className='h-full overflow-hidden'>
+		<div className="h-full overflow-hidden">
 			<RoutesPanel
 				selectedAirportList={selectedAirportList}
 				setSelectedAirportList={setSelectedAirportList}
@@ -90,7 +97,7 @@ function MapComponent() {
 			/>
 			<InventoryPanel />
 			{createNewPair && (
-				<div className='absolute top-24 left-1/2 transform -translate-x-1/2 bg-white z-10 rounded-xl px-4 py-2 shadow'>
+				<div className="absolute top-24 left-1/2 transform -translate-x-1/2 bg-white z-10 rounded-xl px-4 py-2 shadow">
 					<p>Select 2 markers to create route</p>
 				</div>
 			)}
@@ -108,15 +115,15 @@ function MapComponent() {
 							north: 85,
 							south: -85,
 							west: -180,
-							east: 180
+							east: 180,
 						},
-						strictBounds: false
+						strictBounds: false,
 					},
 					fullscreenControl: true,
 					fullscreenControlOptions: {
-						position: google.maps.ControlPosition.RIGHT_CENTER
+						position: google.maps.ControlPosition.RIGHT_CENTER,
 					},
-					mapTypeControl: false
+					mapTypeControl: false,
 				}}
 			>
 				{airports.map((airport, index) => (
@@ -137,7 +144,7 @@ function MapComponent() {
 						}}
 						icon={{
 							url: `https://maps.google.com/mapfiles/ms/icons/${currentPair.find((air) => air == airport) ? 'blue' : 'red'}-dot.png`,
-							scaledSize: new window.google.maps.Size(40, 40)
+							scaledSize: new window.google.maps.Size(40, 40),
 						}}
 					/>
 				))}
@@ -147,8 +154,8 @@ function MapComponent() {
 						position={{ lat: selectedAirport.lat, lng: selectedAirport.lng }}
 						onCloseClick={() => setSelectedAirport({ lat: 0, lng: 0, name: 'None' })}
 					>
-						<div className='flex flex-col gap-6 max-w-64'>
-							<p className='text-md font-bold text-center'>{selectedAirport.name}</p>
+						<div className="flex flex-col gap-6 max-w-64">
+							<p className="text-md font-bold text-center">{selectedAirport.name}</p>
 						</div>
 					</InfoWindow>
 				)}
