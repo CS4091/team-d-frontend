@@ -4,6 +4,7 @@ import { Airport } from '@/interfaces/Airport';
 import { GoogleMap, InfoWindow, LoadScript, Marker } from '@react-google-maps/api';
 import { useEffect, useRef, useState } from 'react';
 import api from '@/lib/axiosConfig';
+import OrganizationPanel from '@/components/panels/OrganizationPanel';
 
 const containerStyle = {
 	width: '100%',
@@ -82,7 +83,8 @@ function MapComponent() {
 				createNewPair={createNewPair}
 				setCreateNewPair={setCreateNewPair}
 			/>
-			<InventoryPanel />
+			<InventoryPanel/>
+            <OrganizationPanel/>
 			{createNewPair && (
 				<div className="absolute top-24 left-1/2 transform -translate-x-1/2 bg-white z-10 rounded-xl px-4 py-2 shadow">
 					<p>Select 2 markers to create route</p>
