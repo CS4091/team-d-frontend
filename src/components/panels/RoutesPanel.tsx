@@ -2,6 +2,7 @@ import { Airport } from '@/interfaces/Airport';
 import { useState } from 'react';
 import { FaTrashCan } from 'react-icons/fa6';
 import Panel from '../Panel';
+import { Button } from '../ui/button';
 
 interface Props {
 	selectedAirportList: Airport[][];
@@ -26,14 +27,10 @@ const RoutesPanel = ({ selectedAirportList, setSelectedAirportList, polylines, s
 		<Panel name='Routes' startingPosition={{ x: 50, y: 100 }}>
 			<div className='overflow-y-scroll bg-gray-100 w-full h-full px-4 py-4 flex flex-col gap-2 rounded-b-xl max-h-96'>
 				{!createNewPair && (
-					<button className='bg-primary py-3 px-16 rounded-xl text-white font-bold hover:bg-[#8CB4FF]' onClick={() => setCreateNewPair(true)}>
-						Create Route
-					</button>
+                    <Button className='w-full font-bold' onClick={() => setCreateNewPair(true)}>Create Route</Button>
 				)}
 				{createNewPair && (
-					<button className='bg-red-400 py-3 px-16 rounded-xl font-md hover:bg-red-300 text-white font-bold' onClick={() => setCreateNewPair(false)}>
-						Cancel New Route
-					</button>
+                    <Button className='w-full font-bold' variant='destructive' onClick={() => setCreateNewPair(false)}>Cancel New Route</Button>
 				)}
 				{selectedAirportList.map((airport, i) => (
 					<div
