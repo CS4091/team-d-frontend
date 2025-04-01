@@ -6,6 +6,9 @@ export default {
 	theme: {
     	extend: {
     		colors: {
+                pink: '#FF61E2',
+                pinkhover: '#FF9AED',
+                gray: '#4F4F4F',
     			background: 'hsl(var(--background))',
     			foreground: 'hsl(var(--foreground))',
     			primary: {

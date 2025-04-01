@@ -1,8 +1,19 @@
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 
 const Navbar = () => {
+	const router = useRouter();
+
+	console.log(router.pathname);
+
 	return (
-		<div className='absolute z-10 bg-white h-16 w-full flex items-center justify-between px-12 py-8 text-primary font-bold'>
+		<div
+			className='absolute z-10 h-16 w-full flex items-center justify-between px-12 py-8 text-primary font-bold'
+			style={{
+				backgroundColor: router.pathname == '/dashboard' ? 'white' : 'transparent',
+				position: router.pathname == '/dashboard' ? 'absolute' : 'relative'
+			}}
+		>
 			<div className='flex gap-16 items-center'>
 				<Link href='/' className='rounded-xl hover:text-blue-300'>
 					LOGO

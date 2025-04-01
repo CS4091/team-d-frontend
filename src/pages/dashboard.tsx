@@ -27,19 +27,6 @@ function MapComponent() {
 	};
 
 	useEffect(() => {
-		async function fetchAirports() {
-			// const response = await fetch('/data/airports.csv');
-			// const text = await response.text();
-			// const rows = text.split('\n').slice(1);
-			// const parsedAirports = rows
-			// 	.map((row) => {
-			// 		const cols = row.split(',');
-			// 		return { name: cols[3], lat: parseFloat(cols[4]), lng: parseFloat(cols[5]) };
-			// 	})
-			// 	.filter((airport) => !isNaN(airport.lat) && !isNaN(airport.lng));
-            // setAirports(parsedAirports)
-		}
-		// fetchAirports();
         api.get('/aviation/airports')
         .then((resp) => {
             setAirports(resp.data);
