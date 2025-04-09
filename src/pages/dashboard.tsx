@@ -5,6 +5,7 @@ import { GoogleMap, InfoWindow, LoadScript, Marker } from '@react-google-maps/ap
 import { useEffect, useRef, useState } from 'react';
 import api from '@/lib/axiosConfig';
 import OrganizationPanel from '@/components/panels/OrganizationPanel';
+import { MarkerClusterer, Cluster } from '@googlemaps/markerclusterer';
 
 const containerStyle = {
 	width: '100%',
@@ -20,6 +21,9 @@ function MapComponent() {
 	const [selectedAirportList, setSelectedAirportList] = useState<Airport[][]>([]);
 	const [polylines, setPolylines] = useState<google.maps.Polyline[]>([]);
 	const [createNewPair, setCreateNewPair] = useState(false);
+	const clustererRef = useRef<MarkerClusterer | null>(null);	
+	const clusteredMarkersRef = useRef<google.maps.Marker[]>([]);
+	const routeMarkersRef = useRef<google.maps.Marker[]>([]);
 
 	const mapRef = useRef<google.maps.Map | null>(null);
 
@@ -36,6 +40,88 @@ function MapComponent() {
             console.log(err);
         });
 	}, []);
+
+	useEffect(() => {
+		if (!mapRef.current || airports.length === 0) return;
+	  
+		// Clear existing markers
+		clusteredMarkersRef.current.forEach(marker => marker.setMap(null));
+		routeMarkersRef.current.forEach(marker => marker.setMap(null));
+		clustererRef.current?.clearMarkers();
+	  
+		const clusteredMarkers: google.maps.Marker[] = [];
+		const routeMarkers: google.maps.Marker[] = [];
+	  
+		airports.forEach((airport) => {
+		  const marker = new google.maps.Marker({
+			position: { lat: airport.lat, lng: airport.lng },
+			title: airport.name,
+			icon: {
+			  url: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
+			  scaledSize: new window.google.maps.Size(40, 40),
+			},
+		  });
+	  
+		  marker.addListener('click', () => {
+			if (!createNewPair) {
+			  setSelectedAirport(airport);
+			} else {
+			  if (currentPair.find((air) => air.name === airport.name)) {
+				removeAirport(airport);
+			  } else {
+				addAirport(airport);
+			  }
+			}
+		  });
+	  
+		  // Check if this marker is part of a selected route
+		  const isInRoute = selectedAirportList.some(pair =>
+			pair.some(air => air.name === airport.name)
+		  );
+	  
+		  if (isInRoute) {
+			marker.setMap(mapRef.current); // Always show route markers
+			routeMarkers.push(marker);
+		  } else {
+			clusteredMarkers.push(marker); // Let clusterer handle the rest
+		  }
+		});
+	  
+		// Store route markers
+		routeMarkersRef.current = routeMarkers;
+	  
+		// Create clusterer for non-route markers
+		clustererRef.current = new MarkerClusterer({
+		  markers: clusteredMarkers,
+		  map: mapRef.current,
+		  renderer: {
+			render: ({ count, position }: Cluster) => {
+			  return new google.maps.Marker({
+				position,
+				icon: {
+				  url: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
+				  scaledSize: new google.maps.Size(40, 40),
+				  labelOrigin: new google.maps.Point(18.5, 12),
+				},
+				label: {
+				  text: String(count),
+				  color: 'white',
+				  fontWeight: 'bold',
+				  fontSize: '14px',
+				},
+			  });
+			},
+		  },
+		});
+	  
+		clusteredMarkersRef.current = clusteredMarkers;
+	  
+		return () => {
+		  clusteredMarkersRef.current.forEach(marker => marker.setMap(null));
+		  routeMarkersRef.current.forEach(marker => marker.setMap(null));
+		  clustererRef.current?.clearMarkers();
+		};
+	}, [airports, selectedAirportList, createNewPair, currentPair]);
 
 	const addAirport = (airport: Airport) => {
 		if (!mapRef.current) return;
@@ -115,7 +201,7 @@ function MapComponent() {
 					mapTypeControl: false,
 				}}
 			>
-				{airports.map((airport, index) => (
+				{/* {airports.map((airport, index) => (
 					<Marker
 						key={index}
 						position={{ lat: airport.lat, lng: airport.lng }}
@@ -136,7 +222,8 @@ function MapComponent() {
 							scaledSize: new window.google.maps.Size(40, 40),
 						}}
 					/>
-				))}
+				))} 
+				*/}
 
 				{selectedAirport && selectedAirport.name != 'None' && (
 					<InfoWindow
