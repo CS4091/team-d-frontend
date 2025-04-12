@@ -57,7 +57,7 @@ function MapComponent() {
 			position: { lat: airport.lat, lng: airport.lng },
 			title: airport.name,
 			icon: {
-			  url: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
+			  url: `https://maps.google.com/mapfiles/ms/icons/${currentPair.find((air) => air == airport) ? 'blue' : 'red'}-dot.png`,
 			  scaledSize: new window.google.maps.Size(40, 40),
 			},
 		  });
