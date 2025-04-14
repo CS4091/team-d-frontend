@@ -1,12 +1,15 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
+import { useContext } from 'react';
+import { UserContext } from '@/lib/context';
 
 const Navbar = () => {
 	const router = useRouter();
 	const [loggedIn, setLoggedIn] = useState(false);
     const [loading, setLoading] = useState(true);
 
+    const { user } = useContext(UserContext);
 
 	useEffect(() => {
 		const token = localStorage.getItem('token');
@@ -14,7 +17,7 @@ const Navbar = () => {
 			setLoggedIn(true);
 		}
         setLoading(false)
-	}, []);
+	}, [user]);
 
     const signOut = () => {
         localStorage.removeItem('token')

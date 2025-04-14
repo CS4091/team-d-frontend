@@ -38,7 +38,7 @@ const Panel = ({ name, children, startingPosition }: Props) => {
 		<Draggable startingPosition={startingPosition}>
 			<div className='absolute z-10 bg-white w-1/6 min-w-80 flex flex-col shadow rounded-xl'>
 				<div
-					className='cursor-pointer rounded-b-xl flex justify-between items-center px-4 py-4'
+					className={`cursor-pointer ${openPanel ? 'border-b-2 border-slate-200' : 'rounded-b-xl'} flex justify-between items-center px-4 py-4`}
 					onMouseDown={handleMouseDown}
 					onMouseMove={handleMouseMove}
 					onClick={handleClick}

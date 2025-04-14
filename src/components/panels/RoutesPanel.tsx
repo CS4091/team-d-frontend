@@ -25,7 +25,7 @@ const RoutesPanel = ({ selectedAirportList, setSelectedAirportList, polylines, s
 
 	return (
 		<Panel name='Routes' startingPosition={{ x: 50, y: 100 }}>
-			<div className='overflow-y-scroll bg-gray-100 w-full h-full px-4 py-4 flex flex-col gap-2 rounded-b-xl max-h-96'>
+			<div className='overflow-y-scroll w-full h-full px-4 py-4 flex flex-col gap-2 rounded-b-xl max-h-96'>
 				{!createNewPair && (
                     <Button className='w-full font-bold' onClick={() => setCreateNewPair(true)}>Create Route</Button>
 				)}
