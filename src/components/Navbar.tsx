@@ -20,7 +20,9 @@ const Navbar = () => {
 	}, [user]);
 
     const signOut = () => {
-        localStorage.removeItem('token')
+        localStorage.removeItem('token');
+        router.replace('/login');
+        setLoggedIn(false);
     }
 
 	return (

@@ -7,12 +7,14 @@ import api from '@/lib/axiosConfig';
 import { UserContext } from '@/lib/context';
 import { useContext, useState } from 'react';
 import Panel from '../Panel';
+import EmailTagInput from '../EmailTagInput';
+
 
 const OrganizationPanel = () => {
 	const [open, setOpen] = useState(false);
 	const [name, setName] = useState('');
-	const [email, setEmail] = useState('');
 	const [selectedOrganization, setSelectedOrganization] = useState('create');
+	const [selectedEmails, setSelectedEmails] = useState<string[]>([]);
 
 	const { user, updateUser } = useContext(UserContext);
 
@@ -29,6 +31,21 @@ const OrganizationPanel = () => {
 				console.log(err);
 			});
 	};
+
+    const inviteMembers = () => {
+        api.post('/organizations/invite', {
+            emails: selectedEmails,
+            organizationId: selectedOrganization
+        })
+            .then((resp) => {
+                console.log(resp);
+                updateUser();
+                setOpen(false);
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+    };
 
 	return (
 		<Dialog open={open} onOpenChange={setOpen}>
@@ -67,7 +84,7 @@ const OrganizationPanel = () => {
 					<DialogTitle>New Organization</DialogTitle>
 					<DialogDescription className='font-merriweather'>Get started by creating a name for your organization</DialogDescription>
 				</DialogHeader>
-				<form>
+				<form className='mt-2'>
 					<div className='grid w-full items-center gap-4'>
 						<div className='flex flex-col space-y-1.5'>
 							<Label htmlFor='name'>Name</Label>
@@ -88,22 +105,15 @@ const OrganizationPanel = () => {
 			{selectedOrganization != 'create' && selectedOrganization != '' && <DialogContent className='sm:max-w-md bg-[#ffffff]'>
 				<DialogHeader>
 					<DialogTitle>Invite Members</DialogTitle>
-					<DialogDescription className='font-merriweather'>Enter an email to invite members</DialogDescription>
+					<DialogDescription className='font-merriweather'>Start typing an email to invite members</DialogDescription>
 				</DialogHeader>
-				<form>
+				<form className='mt-2'>
 					<div className='grid w-full items-center gap-4'>
-						<div className='flex flex-col space-y-1.5'>
-							<Label htmlFor='name'>Email Address</Label>
-							<Input id='name' placeholder='Enter email address' value={email} onChange={(e) => setEmail(e.target.value)} />
-						</div>
-						{/* <div className='flex flex-col space-y-1.5'>
-							<Label htmlFor='email'>Invite Members</Label>
-							<Input id='email' placeholder="Enter your member's emails" value={email} onChange={(e) => setEmail(e.target.value)} />
-						</div> */}
+                        <EmailTagInput selectedEmails={selectedEmails} setSelectedEmails={setSelectedEmails}/>
 					</div>
 				</form>
 				<DialogFooter>
-					<Button className='w-full font-bold' onClick={createOrganization} disabled={name == ''}>
+					<Button className='w-full font-bold' onClick={inviteMembers} disabled={selectedEmails.length == 0}>
 						Invite Members
 					</Button>
 				</DialogFooter>

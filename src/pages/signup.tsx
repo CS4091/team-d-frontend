@@ -17,6 +17,7 @@ const Signup = () => {
 	const router = useRouter();
 
 	const signupHandler = () => {
+
 		if (confirmPassword != password) {
 			setError('Passwords do not match');
 			return;
@@ -27,9 +28,8 @@ const Signup = () => {
 			password
 		})
 			.then((resp) => {
-				console.log(resp.data);
-                updateUser()
 				localStorage.setItem('token', resp.data.token);
+                updateUser()
 				router.push('/dashboard');
 			})
 			.catch((err) => {

@@ -1,11 +1,10 @@
-import Spline from '@splinetool/react-spline';
+import EmailTagInput from "@/components/EmailTagInput";
+
 
 export default function Test() {
   return (
     <main className=''>
-      <Spline
-        scene="https://prod.spline.design/P4Lyrknc4O6dVhf6/scene.splinecode" 
-      />
+        <EmailTagInput/>
     </main>
   );
 }

@@ -12,7 +12,7 @@ const Login = () => {
     const router = useRouter();
 
 	const loginHandler = () => {
-		api.post('/users', {
+		api.post('/users/login', {
 			email,
 			password
 		})
@@ -32,7 +32,7 @@ const Login = () => {
 			<div className='flex flex-col w-full h-full justify-center items-center'>
 				<div className='flex flex-col items-center bg-white p-20 rounded-xl gap-10 shadow-[2px_3px_30px_10px_rgba(0,0,0,0.2)]'>
 					<div className='flex flex-col items-center justify-center gap-2'>
-						<p className='font-bold text-4xl'>Welcome back to ARRO</p>
+						<p className='font-bold text-4xl'>Welcome Back To ARRO</p>
 						<p className='font-merriweather text-lg text-gray'>Let's pick up where you left off.</p>
 					</div>
 					<div className='flex flex-col gap-6 w-full'>
