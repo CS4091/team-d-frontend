@@ -1,15 +1,27 @@
 import { useRef, useState } from 'react';
 
-const Draggable = ({ startingPosition, children }: { startingPosition: {x: number, y: number}, children: React.ReactNode }) => {
+type Coords = { x: number; y: number };
+
+const Draggable = ({ startingPosition, children }: { startingPosition: Coords; children: React.ReactNode }) => {
 	const [position, setPosition] = useState(startingPosition);
 	const draggingRef = useRef(false);
 	const offsetRef = useRef({ x: 0, y: 0 });
+	const boxRef = useRef<HTMLDivElement>(null);
+
+	const getNavbarRect = () => {
+		const navbar = document.querySelector('nav');
+		return navbar?.getBoundingClientRect() ?? null;
+	};
 
 	const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
 		draggingRef.current = true;
+
+		const rect = boxRef.current?.getBoundingClientRect();
+		if (!rect) return;
+
 		offsetRef.current = {
-			x: e.clientX - position.x,
-			y: e.clientY - position.y
+			x: e.clientX - rect.left,
+			y: e.clientY - rect.top
 		};
 
 		window.addEventListener('mousemove', handleMouseMove);
@@ -22,24 +34,58 @@ const Draggable = ({ startingPosition, children }: { startingPosition: {x: numbe
 		const container = document.documentElement;
 		const containerWidth = container.offsetWidth;
 		const containerHeight = container.offsetHeight;
-		const boxWidth = 350;
-		const boxHeight = 50;
 
-		const newX = Math.min(Math.max(e.clientX - offsetRef.current.x, 0), containerWidth - boxWidth);
-		const newY = Math.min(Math.max(e.clientY - offsetRef.current.y, 0), containerHeight - boxHeight);
+		const boxWidth = 320;
+		const boxHeight = boxRef.current?.offsetHeight ?? 200;
+
+		const rawX = e.clientX - offsetRef.current.x;
+		const rawY = e.clientY - offsetRef.current.y;
+
+		let newX = Math.min(Math.max(rawX, 0), containerWidth - boxWidth);
+		let newY = Math.min(Math.max(rawY, 0), containerHeight - boxHeight);
+
+		const navbarRect = getNavbarRect();
+		if (navbarRect) {
+			const nextBoxRight = newX + boxWidth;
+
+			const overlapsNavbar = newX < navbarRect.right && nextBoxRight > navbarRect.left && newY < navbarRect.bottom;
+
+            console.log(newX)
+            console.log(nextBoxRight)
+
+            if (overlapsNavbar && newX < navbarRect.left) {
+                newX = navbarRect.left - boxWidth - 1;
+            }
+            else if (overlapsNavbar && nextBoxRight > navbarRect.right) {
+                newX = navbarRect.right + 1;
+            }
+            else {
+                newY = navbarRect.bottom + 1;
+            }
+
+		}
 
 		setPosition({ x: newX, y: newY });
 	};
 
 	const handleMouseUp = () => {
 		draggingRef.current = false;
-
 		window.removeEventListener('mousemove', handleMouseMove);
 		window.removeEventListener('mouseup', handleMouseUp);
 	};
 
 	return (
-		<div style={{ left: `${position.x}px`, top: `${position.y}px` }} onMouseDown={handleMouseDown}>
+		<div
+			ref={boxRef}
+			style={{
+				left: `${position.x}px`,
+				top: `${position.y}px`,
+				position: 'absolute',
+				cursor: draggingRef.current ? 'grabbing' : 'grab',
+				userSelect: 'none'
+			}}
+			onMouseDown={handleMouseDown}
+		>
 			{children}
 		</div>
 	);
