@@ -3,10 +3,10 @@ import OrganizationPanel from '@/components/panels/OrganizationPanel';
 import RoutesPanel from '@/components/panels/RoutesPanel';
 import { Airport } from '@/interfaces/Airport';
 import api from '@/lib/axiosConfig';
-import { Cluster, MarkerClusterer } from '@googlemaps/markerclusterer';
-import { GoogleMap, InfoWindow, LoadScript } from '@react-google-maps/api';
-import { useEffect, useRef, useState } from 'react';
 import { darkMapStyle } from '@/lib/mapStyle';
+import { Cluster, MarkerClusterer } from '@googlemaps/markerclusterer';
+import { GoogleMap, InfoWindow, useJsApiLoader } from '@react-google-maps/api';
+import { useEffect, useRef, useState } from 'react';
 
 const containerStyle = {
 	width: '100%',
@@ -15,7 +15,7 @@ const containerStyle = {
 
 const center = { lat: 39.8283, lng: -98.5795 };
 
-function MapComponent() {
+function Dashboard() {
 	const [airports, setAirports] = useState<{ name: string; lat: number; lng: number }[]>([]);
 	const [selectedAirport, setSelectedAirport] = useState<Airport>({ lat: 0, lng: 0, name: 'None' });
 	const [currentPair, setCurrentPair] = useState<Airport[]>([]);
@@ -26,15 +26,17 @@ function MapComponent() {
 	const clusteredMarkersRef = useRef<google.maps.Marker[]>([]);
 	const routeMarkersRef = useRef<google.maps.Marker[]>([]);
 	const [loggedIn, setLoggedIn] = useState(false);
-	const [mapLoaded, setMapLoaded] = useState(false);
 
 	const mapRef = useRef<google.maps.Map | null>(null);
 
+	const { isLoaded, loadError } = useJsApiLoader({
+		googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!,
+		libraries: ['places']
+	});
+
 	const handleMapLoad = (map: google.maps.Map) => {
 		mapRef.current = map;
-		setMapLoaded(true);
 	};
-
 
 	useEffect(() => {
 		const token = localStorage.getItem('token');
@@ -54,7 +56,7 @@ function MapComponent() {
 	}, []);
 
 	useEffect(() => {
-		if (!mapLoaded || !mapRef.current || airports.length === 0) return;
+		if (!mapRef.current || airports.length === 0) return;
 
 		// Clear existing markers
 		clusteredMarkersRef.current.forEach((marker) => marker.setMap(null));
@@ -127,11 +129,13 @@ function MapComponent() {
 		clusteredMarkersRef.current = clusteredMarkers;
 
 		return () => {
-			clusteredMarkersRef.current.forEach((marker) => marker.setMap(null));
-			routeMarkersRef.current.forEach((marker) => marker.setMap(null));
-			clustererRef.current?.clearMarkers();
+			if (typeof google !== 'undefined' && mapRef.current) {
+				clusteredMarkersRef.current.forEach((marker) => marker.setMap(null));
+				routeMarkersRef.current.forEach((marker) => marker.setMap(null));
+				clustererRef.current?.clearMarkers();
+			}
 		};
-	}, [mapLoaded, airports, selectedAirportList, createNewPair, currentPair]);
+	}, [airports, selectedAirportList, createNewPair, currentPair]);
 
 	const addAirport = (airport: Airport) => {
 		if (!mapRef.current) return;
@@ -168,6 +172,9 @@ function MapComponent() {
 
 		setCurrentPair(currentPair.filter((air) => air != airport));
 	};
+
+	if (loadError) return <div>Error loading maps</div>;
+	if (!isLoaded) return <div className='text-center p-10'>Loading map...</div>;
 
 	return (
 		<div className='h-full overflow-hidden'>
@@ -251,13 +258,5 @@ function MapComponent() {
 		</div>
 	);
 }
-
-const Dashboard = () => {
-	return (
-		<LoadScript googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!} libraries={['places']}>
-			<MapComponent />
-		</LoadScript>
-	);
-};
 
 export default Dashboard;
