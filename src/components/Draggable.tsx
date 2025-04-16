@@ -59,7 +59,7 @@ const Draggable = ({ startingPosition, children }: { startingPosition: Coords; c
             else if (overlapsNavbar && nextBoxRight > navbarRect.right) {
                 newX = navbarRect.right + 1;
             }
-            else {
+            else if (overlapsNavbar) {
                 newY = navbarRect.bottom + 1;
             }
 
