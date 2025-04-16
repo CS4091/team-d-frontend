@@ -25,14 +25,16 @@ function MapComponent() {
 	const clustererRef = useRef<MarkerClusterer | null>(null);
 	const clusteredMarkersRef = useRef<google.maps.Marker[]>([]);
 	const routeMarkersRef = useRef<google.maps.Marker[]>([]);
+	const [loggedIn, setLoggedIn] = useState(false);
+	const [mapLoaded, setMapLoaded] = useState(false);
 
 	const mapRef = useRef<google.maps.Map | null>(null);
 
 	const handleMapLoad = (map: google.maps.Map) => {
 		mapRef.current = map;
+		setMapLoaded(true);
 	};
 
-	const [loggedIn, setLoggedIn] = useState(false);
 
 	useEffect(() => {
 		const token = localStorage.getItem('token');
@@ -52,7 +54,7 @@ function MapComponent() {
 	}, []);
 
 	useEffect(() => {
-		if (!mapRef.current || airports.length === 0) return;
+		if (!mapLoaded || !mapRef.current || airports.length === 0) return;
 
 		// Clear existing markers
 		clusteredMarkersRef.current.forEach((marker) => marker.setMap(null));
@@ -129,7 +131,7 @@ function MapComponent() {
 			routeMarkersRef.current.forEach((marker) => marker.setMap(null));
 			clustererRef.current?.clearMarkers();
 		};
-	}, [airports, selectedAirportList, createNewPair, currentPair]);
+	}, [mapLoaded, airports, selectedAirportList, createNewPair, currentPair]);
 
 	const addAirport = (airport: Airport) => {
 		if (!mapRef.current) return;
