@@ -1,4 +1,5 @@
 import api from '@/lib/axiosConfig';
+import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
@@ -30,19 +31,25 @@ const Login = () => {
 				<source src='/videos/plane2.mp4' type='video/mp4' />
 				Your browser does not support the video tag.
 			</video>
-			<div className='fixed top-0 left-0 w-full h-full bg-black/65 z-[-1]' />
+			<div className='fixed top-0 left-0 w-full h-full bg-black/75 z-[-1]' />
 
-			<div className='flex flex-col w-full h-full justify-center items-center'>
+			<motion.div
+				initial={{ opacity: 0, y: 30 }}
+				animate={{ opacity: 1, y: 0 }}
+				transition={{ duration: 0.6, ease: 'easeOut' }}
+				className='flex flex-col w-full h-full justify-center items-center'
+			>
 				<div className='flex flex-col items-center px-20 py-16 rounded-xl gap-6 border-[1px] border-white/25 bg-gradient-to-br from-white/20 to-white/5 backdrop-blur w-full max-w-[500px] '>
 					<div className='flex flex-col items-center justify-center gap-2'>
 						<p className='font-extrabold text-4xl text-white text-center'>Log in</p>
 						<p className='font-merriweather text-lg text-neutral-300'>Let's pick up where you left off</p>
 					</div>
-					<div className='flex flex-col gap-6 w-full'>
+					<div className='flex flex-col gap-4 w-full'>
 						<div className='flex flex-col gap-2 w-full'>
 							<p className='text-sm font-medium text-white'>Email</p>
 							<input
-								className='py-3 px-4 rounded-lg text-sm outline-none'
+								className='py-3 px-4 rounded-lg text-sm outline-none focus:shadow-[0px_0px_20px_0px_rgba(255,255,255,0.2)]'
+								type='email'
 								placeholder='Enter your email address'
 								value={email}
 								onChange={(e) => setEmail(e.target.value)}
@@ -52,7 +59,7 @@ const Login = () => {
 						<div className='flex flex-col gap-2 w-full'>
 							<p className='text-sm font-medium text-white'>Password</p>
 							<input
-								className='py-3 px-4 rounded-lg text-sm outline-none'
+								className='py-3 px-4 rounded-lg text-sm outline-none focus:shadow-[0px_0px_20px_0px_rgba(255,255,255,0.2)]'
 								placeholder='Enter your password'
 								type='password'
 								value={password}
@@ -62,10 +69,7 @@ const Login = () => {
 						</div>
 					</div>
 					<div className='flex flex-col items-center justify-center gap-4 w-full'>
-						<button
-							className='w-full bg-primary py-3 px-16 rounded-xl text-white font-bold hover:bg-[#8CB4FF]'
-							onClick={loginHandler}
-						>
+						<button className='w-full bg-primary py-3 px-16 rounded-xl text-white font-bold hover:bg-[#8CB4FF]' onClick={loginHandler}>
 							Log in
 						</button>
 						<p className='text-neutral-300 text-sm'>
@@ -76,7 +80,7 @@ const Login = () => {
 						</p>
 					</div>
 				</div>
-			</div>
+			</motion.div>
 		</>
 	);
 };

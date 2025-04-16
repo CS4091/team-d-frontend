@@ -37,10 +37,9 @@ export const GlassNavbar = () => {
 					<div className='flex items-center gap-4'>
 						{!loggedIn ? (
 							<>
-								<div className='hidden md:block'>
+						
 									<SignInButton />
-								</div>
-
+								
 								<Link
 									className='relative scale-100 overflow-hidden rounded-lg bg-gradient-to-br from-primary from-40% to-[#8FB1F0] px-4 py-2 font-medium text-white transition-transform hover:scale-105 active:scale-95'
 									href='/signup'
@@ -102,7 +101,7 @@ const TextLink = ({ text }: { text: string }) => {
 
 const SignInButton = () => {
 	return (
-		<Link href='/login' className='group relative scale-100 overflow-hidden rounded-lg px-4 py-2 transition-transform hover:scale-105 active:scale-95'>
+		<Link href={"/login"} className='group relative scale-100 overflow-hidden rounded-lg px-4 py-2 transition-transform hover:scale-105 active:scale-95'>
 			<span className='relative z-10 text-white/90 transition-colors font-semibold group-hover:text-white group-hover:font-bold'>Log in</span>
 			<span className='absolute inset-0 z-0 bg-gradient-to-br from-white/20 to-white/5 opacity-0 transition-opacity group-hover:opacity-100' />
 		</Link>
@@ -125,7 +124,6 @@ const MobileMenu = ({ menuOpen }: { menuOpen: boolean }) => {
 					<TextLink text='History' />
 					<TextLink text='Contact' />
 				</div>
-				<SignInButton />
 			</div>
 		</motion.div>
 	);
