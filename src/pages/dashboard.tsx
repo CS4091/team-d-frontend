@@ -32,6 +32,15 @@ function MapComponent() {
 		mapRef.current = map;
 	};
 
+	const [loggedIn, setLoggedIn] = useState(false);
+
+	useEffect(() => {
+		const token = localStorage.getItem('token');
+		if (token) {
+			setLoggedIn(true);
+		}
+	}, []);
+
 	useEffect(() => {
 		api.get('/aviation/airports')
 			.then((resp) => {
@@ -169,7 +178,7 @@ function MapComponent() {
 				setCreateNewPair={setCreateNewPair}
 			/>
 			<InventoryPanel />
-			<OrganizationPanel />
+			{loggedIn && <OrganizationPanel />}
 			{createNewPair && (
 				<div className='absolute top-24 left-1/2 transform -translate-x-1/2 bg-white z-10 rounded-xl px-4 py-2 shadow'>
 					<p>Select 2 markers to create route</p>
