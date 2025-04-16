@@ -28,20 +28,26 @@ const Login = () => {
 
 	return (
 		<>
-			<div className="absolute w-[100%] h-[100%] bg-[url('/Gradient.svg')] bg-center bg-no-repeat"></div>
+            <video autoPlay loop muted playsInline className='fixed top-0 left-0 w-full h-full object-cover z-[-1]'>
+                <source src='/videos/plane2.mp4' type='video/mp4' />
+                Your browser does not support the video tag.
+            </video>
+            <div className='fixed top-0 left-0 w-full h-full bg-black/65 z-[-1]' />
+
 			<div className='flex flex-col w-full h-full justify-center items-center'>
-				<div className='flex flex-col items-center bg-white p-20 rounded-xl gap-10 shadow-[2px_3px_30px_10px_rgba(0,0,0,0.2)]'>
-					<div className='flex flex-col items-center justify-center gap-2'>
+				<div className='flex flex-col items-center p-20 rounded-xl gap-10 border-[1px] border-white/25 bg-gradient-to-br from-white/20 to-white/5 backdrop-blur w-full max-w-[500px]'>
+					{/* <div className='flex flex-col items-center justify-center gap-2'>
 						<p className='font-bold text-4xl'>Welcome Back To ARRO</p>
 						<p className='font-merriweather text-lg text-gray'>Let's pick up where you left off.</p>
-					</div>
+					</div> */}
+                    <p className="">Login</p>
 					<div className='flex flex-col gap-6 w-full'>
 						<div className='flex flex-col gap-2 w-full'>
-							<p className='text-sm'>Email</p>
+							<p className='text-sm text-white'>Email</p>
 							<Input placeholder='Enter your email address' value={email} onChange={(e) => setEmail(e.target.value)} />
 						</div>
 						<div className='flex flex-col gap-2 w-full'>
-							<p className='text-sm'>Password</p>
+							<p className='text-sm text-white'>Password</p>
 							<Input placeholder='Enter your password' type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
 							<p className='text-sm self-end'>Forgot password?</p>
 

@@ -1,29 +1,28 @@
+import { UserContext } from '@/lib/context';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
-import { useContext } from 'react';
-import { UserContext } from '@/lib/context';
+import { useContext, useEffect, useState } from 'react';
 
 const Navbar = () => {
 	const router = useRouter();
 	const [loggedIn, setLoggedIn] = useState(false);
-    const [loading, setLoading] = useState(true);
+	const [loading, setLoading] = useState(true);
 
-    const { user } = useContext(UserContext);
+	const { user } = useContext(UserContext);
 
 	useEffect(() => {
 		const token = localStorage.getItem('token');
 		if (token) {
 			setLoggedIn(true);
 		}
-        setLoading(false)
+		setLoading(false);
 	}, [user]);
 
-    const signOut = () => {
-        localStorage.removeItem('token');
-        router.replace('/login');
-        setLoggedIn(false);
-    }
+	const signOut = () => {
+		localStorage.removeItem('token');
+		router.replace('/login');
+		setLoggedIn(false);
+	};
 
 	return (
 		<div
@@ -47,23 +46,25 @@ const Navbar = () => {
 					History
 				</Link>
 			</div>
-			{!loading && <div className='flex gap-2 items-center'>
-				{!loggedIn && (
-					<>
-						<Link href='/login' className='px-5 py-2 rounded-xl hover:bg-[#E1F1FF]'>
-							Log in
-						</Link>
-						<Link href='/signup' className='px-5 py-2 bg-primary text-white rounded-xl hover:bg-[#8CB4FF]'>
-							Sign up
-						</Link>
-					</>
-				)}
-				{loggedIn && (
-					<button className='px-5 py-2 bg-primary text-white rounded-xl hover:bg-[#8CB4FF]' onClick={signOut}>
-						Sign out
-					</button>
-				)}
-			</div>}
+			{!loading && (
+				<div className='flex gap-2 items-center'>
+					{!loggedIn && (
+						<>
+							<Link href='/login' className='px-5 py-2 rounded-xl hover:bg-[#E1F1FF]'>
+								Log in
+							</Link>
+							<Link href='/signup' className='px-5 py-2 bg-primary text-white rounded-xl hover:bg-[#8CB4FF]'>
+								Sign up
+							</Link>
+						</>
+					)}
+					{loggedIn && (
+						<button className='px-5 py-2 bg-primary text-white rounded-xl hover:bg-[#8CB4FF]' onClick={signOut}>
+							Sign out
+						</button>
+					)}
+				</div>
+			)}
 		</div>
 	);
 };

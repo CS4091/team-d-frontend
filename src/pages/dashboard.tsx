@@ -1,15 +1,16 @@
 import InventoryPanel from '@/components/panels/InventoryPanel';
+import OrganizationPanel from '@/components/panels/OrganizationPanel';
 import RoutesPanel from '@/components/panels/RoutesPanel';
 import { Airport } from '@/interfaces/Airport';
-import { GoogleMap, InfoWindow, LoadScript, Marker } from '@react-google-maps/api';
-import { useEffect, useRef, useState } from 'react';
 import api from '@/lib/axiosConfig';
-import OrganizationPanel from '@/components/panels/OrganizationPanel';
-import { MarkerClusterer, Cluster } from '@googlemaps/markerclusterer';
+import { Cluster, MarkerClusterer } from '@googlemaps/markerclusterer';
+import { GoogleMap, InfoWindow, LoadScript } from '@react-google-maps/api';
+import { useEffect, useRef, useState } from 'react';
+import { darkMapStyle } from '@/lib/mapStyle';
 
 const containerStyle = {
 	width: '100%',
-	height: '100%',
+	height: '100%'
 };
 
 const center = { lat: 39.8283, lng: -98.5795 };
@@ -21,7 +22,7 @@ function MapComponent() {
 	const [selectedAirportList, setSelectedAirportList] = useState<Airport[][]>([]);
 	const [polylines, setPolylines] = useState<google.maps.Polyline[]>([]);
 	const [createNewPair, setCreateNewPair] = useState(false);
-	const clustererRef = useRef<MarkerClusterer | null>(null);	
+	const clustererRef = useRef<MarkerClusterer | null>(null);
 	const clusteredMarkersRef = useRef<google.maps.Marker[]>([]);
 	const routeMarkersRef = useRef<google.maps.Marker[]>([]);
 
@@ -32,94 +33,92 @@ function MapComponent() {
 	};
 
 	useEffect(() => {
-        api.get('/aviation/airports')
-        .then((resp) => {
-            setAirports(resp.data);
-        })
-        .catch((err) => {
-            console.log(err);
-        });
+		api.get('/aviation/airports')
+			.then((resp) => {
+				setAirports(resp.data);
+			})
+			.catch((err) => {
+				console.log(err);
+			});
 	}, []);
 
 	useEffect(() => {
 		if (!mapRef.current || airports.length === 0) return;
-	  
+
 		// Clear existing markers
-		clusteredMarkersRef.current.forEach(marker => marker.setMap(null));
-		routeMarkersRef.current.forEach(marker => marker.setMap(null));
+		clusteredMarkersRef.current.forEach((marker) => marker.setMap(null));
+		routeMarkersRef.current.forEach((marker) => marker.setMap(null));
 		clustererRef.current?.clearMarkers();
-	  
+
 		const clusteredMarkers: google.maps.Marker[] = [];
 		const routeMarkers: google.maps.Marker[] = [];
-	  
+
 		airports.forEach((airport) => {
-		  const marker = new google.maps.Marker({
-			position: { lat: airport.lat, lng: airport.lng },
-			title: airport.name,
-			icon: {
-			  url: `https://maps.google.com/mapfiles/ms/icons/${currentPair.find((air) => air == airport) ? 'blue' : 'red'}-dot.png`,
-			  scaledSize: new window.google.maps.Size(40, 40),
-			},
-		  });
-	  
-		  marker.addListener('click', () => {
-			if (!createNewPair) {
-			  setSelectedAirport(airport);
+			const marker = new google.maps.Marker({
+				position: { lat: airport.lat, lng: airport.lng },
+				title: airport.name,
+				icon: {
+					url: `https://maps.google.com/mapfiles/ms/icons/${currentPair.find((air) => air == airport) ? 'blue' : 'red'}-dot.png`,
+					scaledSize: new window.google.maps.Size(40, 40)
+				}
+			});
+
+			marker.addListener('click', () => {
+				if (!createNewPair) {
+					setSelectedAirport(airport);
+				} else {
+					if (currentPair.find((air) => air.name === airport.name)) {
+						removeAirport(airport);
+					} else {
+						addAirport(airport);
+					}
+				}
+			});
+
+			// Check if this marker is part of a selected route
+			const isInRoute = selectedAirportList.some((pair) => pair.some((air) => air.name === airport.name));
+
+			if (isInRoute) {
+				marker.setMap(mapRef.current); // Always show route markers
+				routeMarkers.push(marker);
 			} else {
-			  if (currentPair.find((air) => air.name === airport.name)) {
-				removeAirport(airport);
-			  } else {
-				addAirport(airport);
-			  }
+				clusteredMarkers.push(marker); // Let clusterer handle the rest
 			}
-		  });
-	  
-		  // Check if this marker is part of a selected route
-		  const isInRoute = selectedAirportList.some(pair =>
-			pair.some(air => air.name === airport.name)
-		  );
-	  
-		  if (isInRoute) {
-			marker.setMap(mapRef.current); // Always show route markers
-			routeMarkers.push(marker);
-		  } else {
-			clusteredMarkers.push(marker); // Let clusterer handle the rest
-		  }
 		});
-	  
+
 		// Store route markers
 		routeMarkersRef.current = routeMarkers;
-	  
+
 		// Create clusterer for non-route markers
 		clustererRef.current = new MarkerClusterer({
-		  markers: clusteredMarkers,
-		  map: mapRef.current,
-		  renderer: {
-			render: ({ count, position }: Cluster) => {
-			  return new google.maps.Marker({
-				position,
-				icon: {
-				  url: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
-				  scaledSize: new google.maps.Size(40, 40),
-				  labelOrigin: new google.maps.Point(18.5, 12),
-				},
-				label: {
-				  text: String(count),
-				  color: 'white',
-				  fontWeight: 'bold',
-				  fontSize: '14px',
-				},
-			  });
-			},
-		  },
+			markers: clusteredMarkers,
+			map: mapRef.current,
+			renderer: {
+				render: ({ count, position }: Cluster) => {
+					return new google.maps.Marker({
+						position,
+						icon: {
+							url: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
+							scaledSize: new google.maps.Size(40, 40),
+							labelOrigin: new google.maps.Point(18.5, 12)
+						},
+						label: {
+							text: String(count),
+							color: 'white',
+							fontWeight: 'bold',
+							fontSize: '14px'
+						}
+					});
+				}
+			}
 		});
-	  
+
 		clusteredMarkersRef.current = clusteredMarkers;
-	  
+
 		return () => {
-		  clusteredMarkersRef.current.forEach(marker => marker.setMap(null));
-		  routeMarkersRef.current.forEach(marker => marker.setMap(null));
-		  clustererRef.current?.clearMarkers();
+			clusteredMarkersRef.current.forEach((marker) => marker.setMap(null));
+			routeMarkersRef.current.forEach((marker) => marker.setMap(null));
+			clustererRef.current?.clearMarkers();
 		};
 	}, [airports, selectedAirportList, createNewPair, currentPair]);
 
@@ -132,11 +131,11 @@ function MapComponent() {
 			let polyline = new google.maps.Polyline({
 				path: [
 					{ lat: currentPair[0].lat, lng: currentPair[0].lng },
-					{ lat: airport.lat, lng: airport.lng },
+					{ lat: airport.lat, lng: airport.lng }
 				],
 				strokeColor: '#0000FF',
 				strokeOpacity: 1.0,
-				strokeWeight: 2,
+				strokeWeight: 2
 			});
 
 			setPolylines([...polylines, polyline]);
@@ -160,7 +159,7 @@ function MapComponent() {
 	};
 
 	return (
-		<div className="h-full overflow-hidden">
+		<div className='h-full overflow-hidden'>
 			<RoutesPanel
 				selectedAirportList={selectedAirportList}
 				setSelectedAirportList={setSelectedAirportList}
@@ -169,10 +168,10 @@ function MapComponent() {
 				createNewPair={createNewPair}
 				setCreateNewPair={setCreateNewPair}
 			/>
-			<InventoryPanel/>
-            <OrganizationPanel/>
+			<InventoryPanel />
+			<OrganizationPanel />
 			{createNewPair && (
-				<div className="absolute top-24 left-1/2 transform -translate-x-1/2 bg-white z-10 rounded-xl px-4 py-2 shadow">
+				<div className='absolute top-24 left-1/2 transform -translate-x-1/2 bg-white z-10 rounded-xl px-4 py-2 shadow'>
 					<p>Select 2 markers to create route</p>
 				</div>
 			)}
@@ -190,15 +189,17 @@ function MapComponent() {
 							north: 85,
 							south: -85,
 							west: -180,
-							east: 180,
+							east: 180
 						},
-						strictBounds: false,
+						strictBounds: false
 					},
 					fullscreenControl: true,
 					fullscreenControlOptions: {
-						position: google.maps.ControlPosition.RIGHT_CENTER,
+						position: google.maps.ControlPosition.RIGHT_CENTER
 					},
 					mapTypeControl: false,
+					styles: darkMapStyle,
+					disableDefaultUI: true
 				}}
 			>
 				{/* {airports.map((airport, index) => (
@@ -230,8 +231,8 @@ function MapComponent() {
 						position={{ lat: selectedAirport.lat, lng: selectedAirport.lng }}
 						onCloseClick={() => setSelectedAirport({ lat: 0, lng: 0, name: 'None' })}
 					>
-						<div className="flex flex-col gap-6 max-w-64">
-							<p className="text-md font-bold text-center">{selectedAirport.name}</p>
+						<div className='flex flex-col gap-6 max-w-64'>
+							<p className='text-md font-bold text-center'>{selectedAirport.name}</p>
 						</div>
 					</InfoWindow>
 				)}

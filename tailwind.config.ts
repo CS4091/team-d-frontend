@@ -7,8 +7,9 @@ export default {
     	extend: {
     		colors: {
                 pink: '#FF61E2',
-                pinkhover: '#FF9AED',
-                gray: '#4F4F4F',
+                pinkhover: '#EB6ED5',
+                grey: '#4F4F4F',
+                dark: '#020202',
     			background: 'hsl(var(--background))',
     			foreground: 'hsl(var(--foreground))',
     			primary: {
