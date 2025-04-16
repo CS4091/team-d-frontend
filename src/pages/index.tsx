@@ -15,7 +15,7 @@ const Home = () => {
 					<br />
 					<span className='text-primary'>Maximize</span> Savings
 				</p>
-				<p className='text-xl font-merriweather text-neutral-100 py-4'>
+				<p className='text-xl font-merriweather text-neutral-300 py-4'>
 					Smarter flight planning made <span className='text-pink'>simple</span>--reduce costs and maximize efficiency effortlessly.
 				</p>
 				<Link
@@ -24,7 +24,7 @@ const Home = () => {
 				>
 					Start planning
 				</Link>
-				<p className='font-merriweather text-neutral-100'>🚀 No account required—get started for free!</p>
+				<p className='font-merriweather text-neutral-300'>🚀 No account required—get started for free!</p>
 			</div>
 		</>
 	);

@@ -8,6 +8,7 @@ export default {
     		colors: {
                 pink: '#FF61E2',
                 pinkhover: '#EB6ED5',
+                pinkhover2: '#FF9AED',
                 grey: '#4F4F4F',
                 dark: '#020202',
     			background: 'hsl(var(--background))',

@@ -1,4 +1,3 @@
-import { Input } from '@/components/ui/input';
 import api from '@/lib/axiosConfig';
 import { UserContext } from '@/lib/context';
 import Link from 'next/link';
@@ -17,7 +16,6 @@ const Signup = () => {
 	const router = useRouter();
 
 	const signupHandler = () => {
-
 		if (confirmPassword != password) {
 			setError('Passwords do not match');
 			return;
@@ -29,7 +27,7 @@ const Signup = () => {
 		})
 			.then((resp) => {
 				localStorage.setItem('token', resp.data.token);
-                updateUser()
+				updateUser();
 				router.push('/dashboard');
 			})
 			.catch((err) => {
@@ -40,47 +38,66 @@ const Signup = () => {
 
 	return (
 		<>
-			<div className="absolute w-[100%] h-[100%] bg-[url('/Gradient.svg')] bg-center bg-no-repeat"></div>
+			<video autoPlay loop muted playsInline className='fixed top-0 left-0 w-full h-full object-cover z-[-1]'>
+				<source src='/videos/plane2.mp4' type='video/mp4' />
+				Your browser does not support the video tag.
+			</video>
+			<div className='fixed top-0 left-0 w-full h-full bg-black/65 z-[-1]' />
+
 			<div className='flex flex-col w-full h-full justify-center items-center'>
-				<div className='flex flex-col items-center bg-white p-20 rounded-xl gap-10 shadow-[2px_3px_30px_10px_rgba(0,0,0,0.2)]'>
+				<div className='flex flex-col items-center p-20 py-16 rounded-xl gap-6 border-[1px] border-white/25 bg-gradient-to-br from-white/20 to-white/5 backdrop-blur w-full max-w-[500px] '>
 					<div className='flex flex-col items-center justify-center gap-2'>
-						<p className='font-bold text-4xl'>Get Started With ARRO</p>
-						<p className='font-merriweather text-lg text-gray'>Let's get started by creating an account.</p>
-						{error != '' && <p className='text-sm text-red-400 font-bold'>Error: {error}</p>}
+						<p className='font-extrabold text-4xl text-white text-center'>Sign up</p>
+						<p className='font-merriweather text-lg text-neutral-300'>Let's get started by creating an account</p>
+                        {error != '' && <p className='text-sm text-red-400 font-bold'>Error: {error}</p>}
 					</div>
 					<div className='flex flex-col gap-6 w-full'>
 						<div className='flex flex-col gap-2 w-full'>
-							<p className='text-sm'>Name</p>
-							<Input placeholder='Enter your name' value={name} onChange={(e) => setName(e.target.value)} />
+							<p className='text-sm font-medium text-white'>Name</p>
+							<input
+								className='py-3 px-4 rounded-lg text-sm outline-none'
+								placeholder='Enter your name'
+								value={name}
+								onChange={(e) => setName(e.target.value)}
+							></input>
 						</div>
 						<div className='flex flex-col gap-2 w-full'>
-							<p className='text-sm'>Email</p>
-							<Input placeholder='Enter your email address' value={email} onChange={(e) => setEmail(e.target.value)} />
+							<p className='text-sm font-medium text-white'>Email</p>
+							<input
+								className='py-3 px-4 rounded-lg text-sm outline-none'
+								placeholder='Enter your email address'
+								value={email}
+								onChange={(e) => setEmail(e.target.value)}
+							></input>
 						</div>
 						<div className='flex flex-col gap-2 w-full'>
-							<p className='text-sm'>Password</p>
-							<Input placeholder='Enter your password' type='password' value={password} onChange={(e) => setPassword(e.target.value)} />
+							<p className='text-sm font-medium text-white'>Password</p>
+							<input
+								className='py-3 px-4 rounded-lg text-sm outline-none'
+								placeholder='Enter your password'
+								type='password'
+								value={password}
+								onChange={(e) => setPassword(e.target.value)}
+							></input>
 						</div>
 						<div className='flex flex-col gap-2 w-full'>
-							<p className='text-sm'>Confirm Password</p>
-							<Input
+							<p className='text-sm font-medium text-white'>Confirm Password</p>
+							<input
+								className='py-3 px-4 rounded-lg text-sm outline-none'
 								placeholder='Confirm your password'
 								type='password'
 								value={confirmPassword}
 								onChange={(e) => setConfirmPassword(e.target.value)}
-							/>
+							></input>
 						</div>
 					</div>
 					<div className='flex flex-col items-center justify-center gap-4 w-full'>
-						<button
-							className='w-full bg-primary py-3 px-16 rounded-xl text-white font-bold shadow-[2px_4px_6px_0px_rgba(0,0,0,0.25)] hover:bg-[#8CB4FF]'
-							onClick={signupHandler}
-						>
+						<button className='w-full bg-primary py-3 px-16 rounded-xl text-white font-bold hover:bg-[#8CB4FF]' onClick={signupHandler}>
 							Sign up
 						</button>
-						<p className='text-gray font-merriweather text-sm'>
+						<p className='text-neutral-300 text-sm'>
 							Already have an account?{' '}
-							<Link href='/login' className='underline text-pink hover:text-pinkhover'>
+							<Link href='/signup' className='font-semibold underline-offset-2 text-pink hover:text-pinkhover2 hover:underline'>
 								Log in
 							</Link>
 						</p>
