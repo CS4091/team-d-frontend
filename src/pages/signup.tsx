@@ -51,50 +51,57 @@ const Signup = () => {
 				transition={{ duration: 0.6, ease: 'easeOut' }}
 				className='flex flex-col w-full h-full justify-center items-center'
 			>
-				<div className='flex flex-col items-center p-20 py-16 rounded-xl gap-6 border-[1px] border-white/25 bg-gradient-to-br from-white/20 to-white/5 backdrop-blur w-full max-w-[500px] '>
+				<div className='flex flex-col items-center p-20 py-16 rounded-xl gap-6 border-[1px] border-white/25 bg-gradient-to-br from-white/20 to-white/5 backdrop-blur w-full max-w-[600px] '>
 					<div className='flex flex-col items-center justify-center gap-2'>
 						<p className='font-extrabold text-4xl text-white text-center'>Sign up</p>
 						<p className='font-merriweather text-lg text-neutral-300'>Let's get started by creating an account</p>
 						{error != '' && <p className='text-sm text-red-400 font-bold'>Error: {error}</p>}
 					</div>
 					<div className='flex flex-col gap-4 w-full'>
-						<div className='flex flex-col gap-2 w-full'>
-							<p className='text-sm font-medium text-white'>Name</p>
-							<input
-								className='py-3 px-4 rounded-lg text-sm outline-none focus:shadow-[0px_0px_20px_0px_rgba(255,255,255,0.2)]'
-								placeholder='Enter your name'
-								value={name}
-								onChange={(e) => setName(e.target.value)}
-							></input>
+						{/* Row 1: Name and Email */}
+						<div className='flex flex-col md:flex-row gap-4 w-full'>
+							<div className='flex flex-col gap-2 w-full md:w-1/2'>
+								<p className='text-sm font-medium text-white'>Name</p>
+								<input
+									className='py-3 px-4 rounded-lg text-sm outline-none focus:shadow-[0px_0px_20px_0px_rgba(255,255,255,0.2)]'
+									placeholder='Enter your name'
+									value={name}
+									onChange={(e) => setName(e.target.value)}
+								></input>
+							</div>
+							<div className='flex flex-col gap-2 w-full md:w-1/2'>
+								<p className='text-sm font-medium text-white'>Email</p>
+								<input
+									className='py-3 px-4 rounded-lg text-sm outline-none focus:shadow-[0px_0px_20px_0px_rgba(255,255,255,0.2)]'
+									placeholder='Enter your email address'
+									value={email}
+									onChange={(e) => setEmail(e.target.value)}
+								></input>
+							</div>
 						</div>
-						<div className='flex flex-col gap-2 w-full'>
-							<p className='text-sm font-medium text-white'>Email</p>
-							<input
-								className='py-3 px-4 rounded-lg text-sm outline-none focus:shadow-[0px_0px_20px_0px_rgba(255,255,255,0.2)]'
-								placeholder='Enter your email address'
-								value={email}
-								onChange={(e) => setEmail(e.target.value)}
-							></input>
-						</div>
-						<div className='flex flex-col gap-2 w-full'>
-							<p className='text-sm font-medium text-white'>Password</p>
-							<input
-								className='py-3 px-4 rounded-lg text-sm outline-none focus:shadow-[0px_0px_20px_0px_rgba(255,255,255,0.2)]'
-								placeholder='Enter your password'
-								type='password'
-								value={password}
-								onChange={(e) => setPassword(e.target.value)}
-							></input>
-						</div>
-						<div className='flex flex-col gap-2 w-full'>
-							<p className='text-sm font-medium text-white'>Confirm Password</p>
-							<input
-								className='py-3 px-4 rounded-lg text-sm outline-none focus:shadow-[0px_0px_20px_0px_rgba(255,255,255,0.2)]'
-								placeholder='Confirm your password'
-								type='password'
-								value={confirmPassword}
-								onChange={(e) => setConfirmPassword(e.target.value)}
-							></input>
+
+						{/* Row 2: Password and Confirm Password */}
+						<div className='flex flex-col md:flex-row gap-4 w-full'>
+							<div className='flex flex-col gap-2 w-full md:w-1/2'>
+								<p className='text-sm font-medium text-white'>Password</p>
+								<input
+									className='py-3 px-4 rounded-lg text-sm outline-none focus:shadow-[0px_0px_20px_0px_rgba(255,255,255,0.2)]'
+									placeholder='Enter your password'
+									type='password'
+									value={password}
+									onChange={(e) => setPassword(e.target.value)}
+								></input>
+							</div>
+							<div className='flex flex-col gap-2 w-full md:w-1/2'>
+								<p className='text-sm font-medium text-white'>Confirm Password</p>
+								<input
+									className='py-3 px-4 rounded-lg text-sm outline-none focus:shadow-[0px_0px_20px_0px_rgba(255,255,255,0.2)]'
+									placeholder='Confirm your password'
+									type='password'
+									value={confirmPassword}
+									onChange={(e) => setConfirmPassword(e.target.value)}
+								></input>
+							</div>
 						</div>
 					</div>
 					<div className='flex flex-col items-center justify-center gap-4 w-full'>

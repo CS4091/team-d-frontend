@@ -39,7 +39,7 @@ const Login = () => {
 				transition={{ duration: 0.6, ease: 'easeOut' }}
 				className='flex flex-col w-full h-full justify-center items-center'
 			>
-				<div className='flex flex-col items-center px-20 py-16 rounded-xl gap-6 border-[1px] border-white/25 bg-gradient-to-br from-white/20 to-white/5 backdrop-blur w-full max-w-[500px] '>
+				<div className='flex flex-col items-center px-20 py-16 rounded-xl gap-6 border-[1px] border-white/25 bg-gradient-to-br from-white/20 to-white/5 backdrop-blur w-full max-w-[600px] '>
 					<div className='flex flex-col items-center justify-center gap-2'>
 						<p className='font-extrabold text-4xl text-white text-center'>Log in</p>
 						<p className='font-merriweather text-lg text-neutral-300'>Let's pick up where you left off</p>
