@@ -5,6 +5,7 @@ import { useRouter } from 'next/router';
 import { useContext, useEffect, useState } from 'react';
 import { FiMenu } from 'react-icons/fi';
 import useMeasure from 'react-use-measure';
+import Logo from './assets/Logo';
 
 export const GlassNavbar = () => {
 	const [menuOpen, setMenuOpen] = useState(false);
@@ -32,7 +33,7 @@ export const GlassNavbar = () => {
 		<nav className='fixed left-0 right-0 top-0 z-10 mx-auto max-w-6xl overflow-hidden border-[1px] border-white/25 bg-gradient-to-br from-white/20 to-white/5 backdrop-blur md:left-6 md:right-6 md:top-6 md:rounded-2xl z-[1000]'>
 			<div className='flex items-center justify-between px-5 py-5'>
 				<Links />
-				<Logo />
+				<LogoBox />
 				{!loading && (
 					<div className='flex items-center gap-4'>
 						{!loggedIn ? (
@@ -68,8 +69,9 @@ export const GlassNavbar = () => {
 	);
 };
 
-const Logo = () => (
-	<span className='pointer-events-none relative left-0 top-[50%] z-10 text-4xl font-black text-white md:absolute md:left-[50%] md:-translate-x-[50%] md:-translate-y-[50%]'>
+const LogoBox = () => (
+	<span className='pointer-events-none left-0 top-[50%] z-10 flex text-4xl font-black text-white md:absolute md:left-[50%] md:-translate-x-[50%] md:-translate-y-[50%]'>
+		<Logo className='h-10 w-10 text-primary' />
 		arro
 	</span>
 );

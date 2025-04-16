@@ -2,6 +2,7 @@ import { UserContext } from '@/lib/context';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useContext, useEffect, useState } from 'react';
+import Logo from './assets/Logo';
 
 const Navbar = () => {
 	const router = useRouter();
