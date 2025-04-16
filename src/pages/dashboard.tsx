@@ -10,7 +10,8 @@ import { useEffect, useRef, useState } from 'react';
 
 const containerStyle = {
 	width: '100%',
-	height: '100%'
+	height: '100%',
+    backgroundColor: '#000000',
 };
 
 const center = { lat: 39.8283, lng: -98.5795 };

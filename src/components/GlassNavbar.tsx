@@ -30,7 +30,12 @@ export const GlassNavbar = () => {
 	};
 
 	return (
-		<nav className='fixed left-0 right-0 top-0 z-10 mx-auto max-w-6xl overflow-hidden border-[1px] border-white/25 bg-gradient-to-br from-white/20 to-white/5 backdrop-blur md:left-6 md:right-6 md:top-6 md:rounded-2xl z-[1000]'>
+		<motion.nav
+	initial={{ y: -40, opacity: 0 }}
+	animate={{ y: 0, opacity: 1 }}
+	transition={{ duration: 0.5, ease: 'easeOut' }}
+	className='fixed left-0 right-0 top-0 z-10 mx-auto max-w-6xl overflow-hidden border-[1px] border-white/25 bg-gradient-to-br from-white/20 to-white/5 backdrop-blur md:left-6 md:right-6 md:top-6 md:rounded-2xl z-[1000]'
+>
 			<div className='flex items-center justify-between px-5 py-5'>
 				<Links />
 				<LogoBox />
@@ -65,7 +70,7 @@ export const GlassNavbar = () => {
 			</div>
 
 			<MobileMenu menuOpen={menuOpen} />
-		</nav>
+		</motion.nav>
 	);
 };
 

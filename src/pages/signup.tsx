@@ -3,7 +3,7 @@ import { UserContext } from '@/lib/context';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 
 const Signup = () => {
 	const [name, setName] = useState('');
@@ -12,9 +12,26 @@ const Signup = () => {
 	const [confirmPassword, setConfirmPassword] = useState('');
 	const [error, setError] = useState('');
 
-	const { updateUser } = useContext(UserContext);
+	const [videoLoaded, setVideoLoaded] = useState(false);
+	const videoRef = useRef<HTMLVideoElement>(null);
 
+	const { updateUser } = useContext(UserContext);
 	const router = useRouter();
+
+	useEffect(() => {
+		const video = videoRef.current;
+
+		if (video?.readyState! >= 3) {
+			setVideoLoaded(true);
+		} else {
+			const handleLoaded = () => setVideoLoaded(true);
+			video?.addEventListener('loadeddata', handleLoaded);
+
+			return () => {
+				video?.removeEventListener('loadeddata', handleLoaded);
+			};
+		}
+	}, []);
 
 	const signupHandler = () => {
 		if (confirmPassword != password) {
@@ -39,11 +56,27 @@ const Signup = () => {
 
 	return (
 		<>
-			<video autoPlay loop muted playsInline className='fixed top-0 left-0 w-full h-full object-cover z-[-1]'>
+			<motion.video
+				ref={videoRef}
+				autoPlay
+				loop
+				muted
+				playsInline
+				initial={{ opacity: 0 }}
+				animate={{ opacity: videoLoaded ? 1 : 0 }}
+				transition={{ duration: 1.2, ease: 'easeOut' }}
+				className='fixed top-0 left-0 w-full h-full object-cover z-[0]'
+			>
 				<source src='/videos/plane2.mp4' type='video/mp4' />
 				Your browser does not support the video tag.
-			</video>
-			<div className='fixed top-0 left-0 w-full h-full bg-black/75 z-[-1]' />
+			</motion.video>
+
+			<motion.div
+				initial={{ opacity: 1 }}
+				animate={{ opacity: videoLoaded ? 0.75 : 1 }}
+				transition={{ duration: 1 }}
+				className='fixed top-0 left-0 w-full h-full bg-black z-[0]'
+			/>
 
 			<motion.div
 				initial={{ opacity: 0, y: 30 }}

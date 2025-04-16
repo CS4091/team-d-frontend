@@ -41,15 +41,19 @@ html,
 } */
 
 * {
-    scrollbar-width: none;
-    scrollbar-color: rgba(0, 0, 0, 0.5) transparent;
-  }
+	scrollbar-width: none;
+	scrollbar-color: rgba(0, 0, 0, 0.5) transparent;
+}
 
-
+.gm-style,
+.gm-style-pbc,
+.gm-style > div {
+	background-color: #17263C !important;
+}
 
 @layer base {
-  :root {
-		--background: 0 0% 100%;
+	:root {
+		--background: #000000;
 		--foreground: 0 0% 3.9%;
 		--card: 0 0% 100%;
 		--card-foreground: 0 0% 3.9%;
@@ -77,13 +81,11 @@ html,
 	}
 }
 
-
-
 @layer base {
-  * {
-    @apply border-border;
+	* {
+		@apply border-border;
 	}
-  body {
-    @apply bg-background text-foreground;
+	body {
+		@apply bg-background text-foreground;
 	}
 }

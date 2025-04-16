@@ -2,13 +2,30 @@ import api from '@/lib/axiosConfig';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 const Login = () => {
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
+	const [videoLoaded, setVideoLoaded] = useState(false);
+	const videoRef = useRef<HTMLVideoElement>(null);
 
 	const router = useRouter();
+
+	useEffect(() => {
+		const video = videoRef.current;
+
+		if (video?.readyState! >= 3) {
+			setVideoLoaded(true);
+		} else {
+			const handleLoaded = () => setVideoLoaded(true);
+			video?.addEventListener('loadeddata', handleLoaded);
+
+			return () => {
+				video?.removeEventListener('loadeddata', handleLoaded);
+			};
+		}
+	}, []);
 
 	const loginHandler = () => {
 		api.post('/users/login', {
@@ -27,11 +44,27 @@ const Login = () => {
 
 	return (
 		<>
-			<video autoPlay loop muted playsInline className='fixed top-0 left-0 w-full h-full object-cover z-[-1]'>
+			<motion.video
+				ref={videoRef}
+				autoPlay
+				loop
+				muted
+				playsInline
+				initial={{ opacity: 0 }}
+				animate={{ opacity: videoLoaded ? 1 : 0 }}
+				transition={{ duration: 1.2, ease: 'easeOut' }}
+				className='fixed top-0 left-0 w-full h-full object-cover z-[0]'
+			>
 				<source src='/videos/plane2.mp4' type='video/mp4' />
 				Your browser does not support the video tag.
-			</video>
-			<div className='fixed top-0 left-0 w-full h-full bg-black/75 z-[-1]' />
+			</motion.video>
+
+			<motion.div
+				initial={{ opacity: 1 }}
+				animate={{ opacity: videoLoaded ? 0.75 : 1 }}
+				transition={{ duration: 1 }}
+				className='fixed top-0 left-0 w-full h-full bg-black z-[0]'
+			/>
 
 			<motion.div
 				initial={{ opacity: 0, y: 30 }}
