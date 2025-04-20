@@ -38,10 +38,10 @@ const Panel = ({ name, children, startingPosition }: Props) => {
 	return (
 		<Draggable startingPosition={startingPosition}>
 			<Resizable
-				minHeight={180}
+				minHeight={130}
                 maxHeight={'75vh'}
                 maxWidth={'50vw'}
-				defaultSize={{ width: 320, height: 180 }}
+				defaultSize={{ width: 320, height: 'auto' }}
 				className='z-10 bg-white w-1/6 min-w-80 flex flex-col shadow rounded-xl'
 				enable={{
 					bottomRight: true

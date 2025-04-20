@@ -57,7 +57,7 @@ const InventoryPanel = ({ startingPosition, airports, setSelectingHomebase, open
 	return (
 		<Dialog open={open} onOpenChange={setOpen}>
 			<Panel name='Inventory' startingPosition={startingPosition}>
-				<div className='overflow-y-scroll w-full h-full px-4 py-4 flex flex-col gap-2 rounded-b-xl max-h-96'>
+				<div className='overflow-y-scroll w-full h-full px-4 py-4 flex flex-col gap-2 rounded-b-xl'>
 					<DialogTrigger asChild>
 						<Button className='w-full font-bold'>Manage Inventory</Button>
 					</DialogTrigger>

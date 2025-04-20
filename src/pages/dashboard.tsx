@@ -198,9 +198,9 @@ function Dashboard() {
 						createNewPair={createNewPair}
 						setCreateNewPair={setCreateNewPair}
                         setCurrentPair={setCurrentPair}
-						startingPosition={{ x: 50, y: 460 }}
+						startingPosition={{ x: 50, y: 600 }}
 					/>
-					<InventoryPanel startingPosition={{ x: 50, y: 350 }} airports={airports} 
+					<InventoryPanel startingPosition={{ x: 50, y: 400 }} airports={airports} 
                     setSelectingHomebase={setSelectingHomebase}
                     openInventory={openInventory}
                          setOpenInventory={setOpenInventory}
