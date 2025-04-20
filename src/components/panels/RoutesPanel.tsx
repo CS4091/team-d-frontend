@@ -11,9 +11,20 @@ interface Props {
 	setPolylines: React.Dispatch<React.SetStateAction<google.maps.Polyline[]>>;
 	createNewPair: boolean;
 	setCreateNewPair: React.Dispatch<React.SetStateAction<boolean>>;
+	startingPosition: { x: number; y: number };
+	setCurrentPair: React.Dispatch<React.SetStateAction<Airport[]>>;
 }
 
-const RoutesPanel = ({ selectedAirportList, setSelectedAirportList, polylines, setPolylines, createNewPair, setCreateNewPair }: Props) => {
+const RoutesPanel = ({
+	selectedAirportList,
+	setSelectedAirportList,
+	polylines,
+	setPolylines,
+	createNewPair,
+	setCreateNewPair,
+	startingPosition,
+	setCurrentPair
+}: Props) => {
 	const [hoveredRoute, setHoveredRoute] = useState<number | null>(null);
 
 	const removeRoute = (index: number) => {
@@ -24,13 +35,24 @@ const RoutesPanel = ({ selectedAirportList, setSelectedAirportList, polylines, s
 	};
 
 	return (
-		<Panel name='Routes' startingPosition={{ x: 50, y: 100 }}>
-			<div className='overflow-y-scroll w-full h-full px-4 py-4 flex flex-col gap-2 rounded-b-xl max-h-96'>
+		<Panel name='Routes' startingPosition={startingPosition}>
+			<div className='overflow-y-scroll w-full h-full px-4 py-4 flex flex-col gap-2 rounded-b-xl'>
 				{!createNewPair && (
-                    <Button className='w-full font-bold' onClick={() => setCreateNewPair(true)}>Create Route</Button>
+					<Button className='w-full font-bold' onClick={() => setCreateNewPair(true)}>
+						Create Route
+					</Button>
 				)}
 				{createNewPair && (
-                    <Button className='w-full font-bold' variant='destructive' onClick={() => setCreateNewPair(false)}>Cancel New Route</Button>
+					<Button
+						className='w-full font-bold'
+						variant='destructive'
+						onClick={() => {
+							setCreateNewPair(false);
+							setCurrentPair([]);
+						}}
+					>
+						Cancel New Route
+					</Button>
 				)}
 				{selectedAirportList.map((airport, i) => (
 					<div

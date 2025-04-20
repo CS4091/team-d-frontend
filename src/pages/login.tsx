@@ -2,7 +2,8 @@ import api from '@/lib/axiosConfig';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
+import { UserContext } from '@/lib/context';
 
 const Login = () => {
 	const [email, setEmail] = useState('');
@@ -11,6 +12,8 @@ const Login = () => {
 	const videoRef = useRef<HTMLVideoElement>(null);
 
 	const router = useRouter();
+
+    const {updateUser} = useContext(UserContext);
 
 	useEffect(() => {
 		const video = videoRef.current;
@@ -35,6 +38,7 @@ const Login = () => {
 			.then((resp) => {
 				console.log(resp.data);
 				localStorage.setItem('token', resp.data.token);
+                updateUser();
 				router.push('/dashboard');
 			})
 			.catch((err) => {

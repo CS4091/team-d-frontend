@@ -23,11 +23,15 @@ export interface User {
 interface UserContextType {
 	user: User;
 	updateUser: () => void;
+    selectedOrganization: string;
+    updateSelectedOrganization: (orgId: string) => void;
 }
 
 export const UserContext = createContext<UserContextType>({
-	user: { name: '', email: '', id: '', token: '', organizations: [], activeInvites: [] },
-	updateUser: () => {}
+	user: { name: '', email: '', id: '', token: '',organizations: [], activeInvites: [] },
+	updateUser: () => {},
+    selectedOrganization: '',
+    updateSelectedOrganization: () => {},
 });
 
 export const UserProvider: React.FC<PropsWithChildren> = ({ children }) => {
@@ -39,6 +43,8 @@ export const UserProvider: React.FC<PropsWithChildren> = ({ children }) => {
 		organizations: [],
 		activeInvites: []
 	});
+
+    const [selectedOrganization, setSelectedOrganization] = useState<string>('');
 
 	useEffect(() => {
 		updateUser();
@@ -58,5 +64,5 @@ export const UserProvider: React.FC<PropsWithChildren> = ({ children }) => {
 		}
 	};
 
-	return <UserContext.Provider value={{ user, updateUser }}>{children}</UserContext.Provider>;
+	return <UserContext.Provider value={{ user, updateUser, selectedOrganization, updateSelectedOrganization: setSelectedOrganization }}>{children}</UserContext.Provider>;
 };

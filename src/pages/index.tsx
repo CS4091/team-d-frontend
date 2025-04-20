@@ -65,7 +65,7 @@ const Home = () => {
 				>
 					Start planning
 				</Link>
-				<p className='font-merriweather text-neutral-300'>🚀 No account required—get started for free!</p>
+				<p className='font-merriweather text-neutral-300'>🚀 No payment necessary—get started for free!</p>
 			</motion.div>
 		</>
 	);

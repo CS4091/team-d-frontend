@@ -18,8 +18,8 @@ export default {
     				foreground: 'hsl(var(--primary-foreground))'
     			},
     			secondary: {
-    				DEFAULT: 'hsl(var(--secondary))',
-    				foreground: 'hsl(var(--secondary-foreground))'
+    				DEFAULT: '#FF61E2',
+    				foreground: 'white'
     			},
     			accent: {
     				DEFAULT: 'hsl(var(--accent))',

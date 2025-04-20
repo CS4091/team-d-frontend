@@ -31,21 +31,27 @@ export const GlassNavbar = () => {
 
 	return (
 		<motion.nav
-	initial={{ y: -40, opacity: 0 }}
-	animate={{ y: 0, opacity: 1 }}
-	transition={{ duration: 0.5, ease: 'easeOut' }}
-	className='fixed left-0 right-0 top-0 z-10 mx-auto max-w-6xl overflow-hidden border-[1px] border-white/25 bg-gradient-to-br from-white/20 to-white/5 backdrop-blur md:left-6 md:right-6 md:top-6 md:rounded-2xl z-[1000]'
->
+			initial={{ y: -40, opacity: 0 }}
+			animate={{ y: 0, opacity: 1 }}
+			transition={{ duration: 0.5, ease: 'easeOut' }}
+			className='fixed left-0 right-0 top-0 mx-auto max-w-6xl overflow-hidden border-[1px] border-white/25 bg-gradient-to-br from-white/20 to-white/5 backdrop-blur md:left-6 md:right-6 md:top-6 md:rounded-2xl z-[48]'
+		>
 			<div className='flex items-center justify-between px-5 py-5'>
-				<Links />
+				<div className='hidden items-center gap-2 md:flex'>
+                    {loggedIn && <>
+					<GlassLink text='Home' href='/' />
+                    
+					<GlassLink text='Dashboard' href='/dashboard' />
+					<GlassLink text='History' href='/history' />
+                    </>}
+				</div>
 				<LogoBox />
 				{!loading && (
 					<div className='flex items-center gap-4'>
 						{!loggedIn ? (
 							<>
-						
-									<SignInButton />
-								
+								<SignInButton />
+
 								<Link
 									className='relative scale-100 overflow-hidden rounded-lg bg-gradient-to-br from-primary from-40% to-[#8FB1F0] px-4 py-2 font-medium text-white transition-transform hover:scale-105 active:scale-95'
 									href='/signup'
@@ -54,7 +60,7 @@ export const GlassNavbar = () => {
 								</Link>
 							</>
 						) : (
-							<button className='px-5 py-2 bg-primary text-white rounded-xl hover:bg-[#8CB4FF]' onClick={signOut}>
+							<button className='relative scale-100 overflow-hidden rounded-lg bg-gradient-to-br from-primary from-40% to-[#8FB1F0] px-4 py-2 font-medium text-white transition-transform hover:scale-105 active:scale-95' onClick={signOut}>
 								Sign out
 							</button>
 						)}
@@ -81,14 +87,6 @@ const LogoBox = () => (
 	</span>
 );
 
-const Links = () => (
-	<div className='hidden items-center gap-2 md:flex'>
-		<GlassLink text='Home' href='/' />
-		<GlassLink text='Dashboard' href='/dashboard' />
-		<GlassLink text='History' href='/history' />
-	</div>
-);
-
 const GlassLink = ({ text, href }: { text: string; href: string }) => {
 	return (
 		<Link href={href} className='group relative scale-100 overflow-hidden rounded-lg px-4 py-2 transition-transform hover:scale-105 active:scale-95'>
@@ -108,7 +106,7 @@ const TextLink = ({ text }: { text: string }) => {
 
 const SignInButton = () => {
 	return (
-		<Link href={"/login"} className='group relative scale-100 overflow-hidden rounded-lg px-4 py-2 transition-transform hover:scale-105 active:scale-95'>
+		<Link href={'/login'} className='group relative scale-100 overflow-hidden rounded-lg px-4 py-2 transition-transform hover:scale-105 active:scale-95'>
 			<span className='relative z-10 text-white/90 transition-colors font-semibold group-hover:text-white group-hover:font-bold'>Log in</span>
 			<span className='absolute inset-0 z-0 bg-gradient-to-br from-white/20 to-white/5 opacity-0 transition-opacity group-hover:opacity-100' />
 		</Link>

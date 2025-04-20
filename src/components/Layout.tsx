@@ -1,6 +1,5 @@
 import { UserProvider } from '@/lib/context';
 import { JSX } from 'react';
-import Navbar from './Navbar';
 import { GlassNavbar } from './GlassNavbar';
 
 const Layout = ({ children }: { children: JSX.Element }) => {

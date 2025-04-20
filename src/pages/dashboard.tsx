@@ -1,24 +1,27 @@
+import Controls from '@/components/Controls';
 import InventoryPanel from '@/components/panels/InventoryPanel';
 import OrganizationPanel from '@/components/panels/OrganizationPanel';
 import RoutesPanel from '@/components/panels/RoutesPanel';
 import { Airport } from '@/interfaces/Airport';
 import api from '@/lib/axiosConfig';
+import { UserContext } from '@/lib/context';
 import { darkMapStyle } from '@/lib/mapStyle';
 import { Cluster, MarkerClusterer } from '@googlemaps/markerclusterer';
 import { GoogleMap, InfoWindow, useJsApiLoader } from '@react-google-maps/api';
-import { useEffect, useRef, useState } from 'react';
+import { useRouter } from 'next/router';
+import { useContext, useEffect, useRef, useState } from 'react';
 
 const containerStyle = {
 	width: '100%',
 	height: '100%',
-    backgroundColor: '#000000',
+	backgroundColor: '#000000'
 };
 
 const center = { lat: 39.8283, lng: -98.5795 };
 
 function Dashboard() {
-	const [airports, setAirports] = useState<{ name: string; lat: number; lng: number }[]>([]);
-	const [selectedAirport, setSelectedAirport] = useState<Airport>({ lat: 0, lng: 0, name: 'None' });
+	const [airports, setAirports] = useState<Airport[]>([]);
+	const [selectedAirport, setSelectedAirport] = useState<Airport>({ lat: 0, lng: 0, name: 'None', id: '' });
 	const [currentPair, setCurrentPair] = useState<Airport[]>([]);
 	const [selectedAirportList, setSelectedAirportList] = useState<Airport[][]>([]);
 	const [polylines, setPolylines] = useState<google.maps.Polyline[]>([]);
@@ -26,9 +29,15 @@ function Dashboard() {
 	const clustererRef = useRef<MarkerClusterer | null>(null);
 	const clusteredMarkersRef = useRef<google.maps.Marker[]>([]);
 	const routeMarkersRef = useRef<google.maps.Marker[]>([]);
-	const [loggedIn, setLoggedIn] = useState(false);
+
+    const [selectingHomebase, setSelectingHomebase] = useState(false);
+    const [openInventory, setOpenInventory] = useState(false);
+    const [homebase, setHomebase] = useState<string>('');
 
 	const mapRef = useRef<google.maps.Map | null>(null);
+	const router = useRouter();
+
+	const { user, selectedOrganization } = useContext(UserContext);
 
 	const { isLoaded, loadError } = useJsApiLoader({
 		googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!,
@@ -41,8 +50,8 @@ function Dashboard() {
 
 	useEffect(() => {
 		const token = localStorage.getItem('token');
-		if (token) {
-			setLoggedIn(true);
+		if (!token) {
+			router.push('/login');
 		}
 	}, []);
 
@@ -179,16 +188,29 @@ function Dashboard() {
 
 	return (
 		<div className='h-full overflow-hidden'>
-			<RoutesPanel
-				selectedAirportList={selectedAirportList}
-				setSelectedAirportList={setSelectedAirportList}
-				polylines={polylines}
-				setPolylines={setPolylines}
-				createNewPair={createNewPair}
-				setCreateNewPair={setCreateNewPair}
-			/>
-			<InventoryPanel />
-			{loggedIn && <OrganizationPanel />}
+			{selectedOrganization != '' && (
+				<>
+					<RoutesPanel
+						selectedAirportList={selectedAirportList}
+						setSelectedAirportList={setSelectedAirportList}
+						polylines={polylines}
+						setPolylines={setPolylines}
+						createNewPair={createNewPair}
+						setCreateNewPair={setCreateNewPair}
+                        setCurrentPair={setCurrentPair}
+						startingPosition={{ x: 50, y: 460 }}
+					/>
+					<InventoryPanel startingPosition={{ x: 50, y: 350 }} airports={airports} 
+                    setSelectingHomebase={setSelectingHomebase}
+                    openInventory={openInventory}
+                         setOpenInventory={setOpenInventory}
+                   homebase={homebase}
+                    setHomebase={setHomebase}
+                    />
+				</>
+			)}
+			<OrganizationPanel startingPosition={{ x: 50, y: 150 }} />
+			<Controls selectedOrganization={selectedOrganization} routeList={selectedAirportList}/>
 			{createNewPair && (
 				<div className='absolute top-24 left-1/2 transform -translate-x-1/2 bg-white z-10 rounded-xl px-4 py-2 shadow'>
 					<p>Select 2 markers to create route</p>
@@ -221,34 +243,11 @@ function Dashboard() {
 					disableDefaultUI: true
 				}}
 			>
-				{/* {airports.map((airport, index) => (
-					<Marker
-						key={index}
-						position={{ lat: airport.lat, lng: airport.lng }}
-						title={airport.name}
-						onClick={() => {
-							if (!createNewPair) {
-								setSelectedAirport(airport);
-								return;
-							}
-							if (currentPair.find((air) => air == airport)) {
-								removeAirport(airport);
-							} else {
-								addAirport(airport);
-							}
-						}}
-						icon={{
-							url: `https://maps.google.com/mapfiles/ms/icons/${currentPair.find((air) => air == airport) ? 'blue' : 'red'}-dot.png`,
-							scaledSize: new window.google.maps.Size(40, 40),
-						}}
-					/>
-				))} 
-				*/}
 
 				{selectedAirport && selectedAirport.name != 'None' && (
 					<InfoWindow
 						position={{ lat: selectedAirport.lat, lng: selectedAirport.lng }}
-						onCloseClick={() => setSelectedAirport({ lat: 0, lng: 0, name: 'None' })}
+						onCloseClick={() => setSelectedAirport({ lat: 0, lng: 0, name: 'None', id: '' })}
 					>
 						<div className='flex flex-col gap-6 max-w-64'>
 							<p className='text-md font-bold text-center'>{selectedAirport.name}</p>

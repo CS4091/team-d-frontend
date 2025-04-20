@@ -2,7 +2,13 @@ import { useRef, useState } from 'react';
 
 type Coords = { x: number; y: number };
 
-const Draggable = ({ startingPosition, children }: { startingPosition: Coords; children: React.ReactNode }) => {
+const Draggable = ({
+	startingPosition,
+	children,
+}: {
+	startingPosition: Coords;
+	children: React.ReactNode;
+}) => {
 	const [position, setPosition] = useState(startingPosition);
 	const draggingRef = useRef(false);
 	const offsetRef = useRef({ x: 0, y: 0 });
@@ -14,6 +20,8 @@ const Draggable = ({ startingPosition, children }: { startingPosition: Coords; c
 	};
 
 	const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+        if ((e.target as HTMLElement).classList.contains('resizable-handle')) return;
+
 		draggingRef.current = true;
 
 		const rect = boxRef.current?.getBoundingClientRect();
@@ -36,7 +44,7 @@ const Draggable = ({ startingPosition, children }: { startingPosition: Coords; c
 		const containerHeight = container.offsetHeight;
 
 		const boxWidth = 320;
-		const boxHeight = boxRef.current?.offsetHeight ?? 200;
+		const boxHeight = 50;
 
 		const rawX = e.clientX - offsetRef.current.x;
 		const rawY = e.clientY - offsetRef.current.y;
@@ -50,19 +58,13 @@ const Draggable = ({ startingPosition, children }: { startingPosition: Coords; c
 
 			const overlapsNavbar = newX < navbarRect.right && nextBoxRight > navbarRect.left && newY < navbarRect.bottom;
 
-            console.log(newX)
-            console.log(nextBoxRight)
-
-            if (overlapsNavbar && newX < navbarRect.left) {
-                newX = navbarRect.left - boxWidth - 1;
-            }
-            else if (overlapsNavbar && nextBoxRight > navbarRect.right) {
-                newX = navbarRect.right + 1;
-            }
-            else if (overlapsNavbar) {
-                newY = navbarRect.bottom + 1;
-            }
-
+			if (overlapsNavbar && newX < navbarRect.left - boxWidth + 50) {
+				newX = navbarRect.left - boxWidth - 1;
+			} else if (overlapsNavbar && nextBoxRight > navbarRect.right + boxWidth - 50) {
+				newX = navbarRect.right + 1;
+			} else if (overlapsNavbar) {
+				newY = navbarRect.bottom + 1;
+			}
 		}
 
 		setPosition({ x: newX, y: newY });
@@ -75,19 +77,21 @@ const Draggable = ({ startingPosition, children }: { startingPosition: Coords; c
 	};
 
 	return (
+
 		<div
 			ref={boxRef}
 			style={{
 				left: `${position.x}px`,
 				top: `${position.y}px`,
 				position: 'absolute',
-				cursor: draggingRef.current ? 'grabbing' : 'grab',
 				userSelect: 'none'
 			}}
 			onMouseDown={handleMouseDown}
 		>
 			{children}
+
 		</div>
+
 	);
 };
 
