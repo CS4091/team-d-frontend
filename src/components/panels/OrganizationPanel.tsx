@@ -1,23 +1,23 @@
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import api from '@/lib/axiosConfig';
 import { UserContext } from '@/lib/context';
 import { useContext, useState } from 'react';
 import EmailTagInput from '../EmailTagInput';
-import Panel from '../Panel';
-import { Plus } from 'lucide-react';
 import NewOrganization from '../NewOrganization';
+import Panel from '../Panel';
+import { Building } from 'lucide-react';
 
-const OrganizationPanel = ({ startingPosition }: {startingPosition: {x: number, y: number}}) => {
+const OrganizationPanel = ({ startingPosition }: { startingPosition: { x: number; y: number } }) => {
 	const [open, setOpen] = useState(false);
 	const [name, setName] = useState('');
-	const [selectedOrganization, setSelectedOrganization] = useState('');
+
 	const [selectedEmails, setSelectedEmails] = useState<string[]>([]);
 
-	const { user, updateUser, updateSelectedOrganization } = useContext(UserContext);
+	const { user, updateUser, updateSelectedOrganization, selectedOrganization } = useContext(UserContext);
+
+
 
 	const inviteMembers = () => {
 		api.post('/organizations/invite', {
@@ -36,13 +36,15 @@ const OrganizationPanel = ({ startingPosition }: {startingPosition: {x: number, 
 
 	return (
 		<Dialog open={open} onOpenChange={setOpen}>
-			<Panel name='Organizations' startingPosition={startingPosition}>
+			<Panel name='Organizations' startingPosition={startingPosition} icon={<Building strokeWidth={1.5} />}>
 				<div className='overflow-y-scroll w-full h-full px-4 py-4 flex flex-col gap-2 rounded-b-xl'>
 					<div className='flex gap-2'>
 						<Select
 							value={selectedOrganization}
 							onValueChange={(value) => {
-								updateSelectedOrganization(value), setSelectedOrganization(value);
+								updateSelectedOrganization(value);
+						
+								localStorage.setItem('selectedOrganization', value);
 							}}
 						>
 							<SelectTrigger className='w-full'>
@@ -57,7 +59,7 @@ const OrganizationPanel = ({ startingPosition }: {startingPosition: {x: number, 
 							</SelectContent>
 						</Select>
 
-						<NewOrganization/>
+						<NewOrganization />
 					</div>
 
 					{selectedOrganization != '' && (

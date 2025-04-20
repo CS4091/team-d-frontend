@@ -19,6 +19,8 @@ const containerStyle = {
 
 const center = { lat: 39.8283, lng: -98.5795 };
 
+const libraries: any[] = ['places'];
+
 function Dashboard() {
 	const [airports, setAirports] = useState<Airport[]>([]);
 	const [selectedAirport, setSelectedAirport] = useState<Airport>({ lat: 0, lng: 0, name: 'None', id: '' });
@@ -30,9 +32,9 @@ function Dashboard() {
 	const clusteredMarkersRef = useRef<google.maps.Marker[]>([]);
 	const routeMarkersRef = useRef<google.maps.Marker[]>([]);
 
-    const [selectingHomebase, setSelectingHomebase] = useState(false);
-    const [openInventory, setOpenInventory] = useState(false);
-    const [homebase, setHomebase] = useState<string>('');
+	const [selectingHomebase, setSelectingHomebase] = useState(false);
+	const [openInventory, setOpenInventory] = useState(false);
+	const [homebase, setHomebase] = useState<{ name: string; id: string }>({ name: '', id: '' });
 
 	const mapRef = useRef<google.maps.Map | null>(null);
 	const router = useRouter();
@@ -41,7 +43,7 @@ function Dashboard() {
 
 	const { isLoaded, loadError } = useJsApiLoader({
 		googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!,
-		libraries: ['places']
+		libraries: libraries
 	});
 
 	const handleMapLoad = (map: google.maps.Map) => {
@@ -87,6 +89,13 @@ function Dashboard() {
 			});
 
 			marker.addListener('click', () => {
+				if (selectingHomebase) {
+					setHomebase({ id: airport.id, name: airport.name });
+					setOpenInventory(true);
+					setSelectingHomebase(false);
+					return;
+				}
+
 				if (!createNewPair) {
 					setSelectedAirport(airport);
 				} else {
@@ -145,7 +154,7 @@ function Dashboard() {
 				clustererRef.current?.clearMarkers();
 			}
 		};
-	}, [airports, selectedAirportList, createNewPair, currentPair]);
+	}, [airports, selectedAirportList, createNewPair, currentPair, selectingHomebase]);
 
 	const addAirport = (airport: Airport) => {
 		if (!mapRef.current) return;
@@ -197,20 +206,21 @@ function Dashboard() {
 						setPolylines={setPolylines}
 						createNewPair={createNewPair}
 						setCreateNewPair={setCreateNewPair}
-                        setCurrentPair={setCurrentPair}
-						startingPosition={{ x: 50, y: 600 }}
+						setCurrentPair={setCurrentPair}
+						startingPosition={{ x: 50, y: 400 }}
 					/>
-					<InventoryPanel startingPosition={{ x: 50, y: 400 }} airports={airports} 
-                    setSelectingHomebase={setSelectingHomebase}
-                    openInventory={openInventory}
-                         setOpenInventory={setOpenInventory}
-                   homebase={homebase}
-                    setHomebase={setHomebase}
-                    />
+					<InventoryPanel
+						startingPosition={{ x: 50, y: 600 }}
+						setSelectingHomebase={setSelectingHomebase}
+						openInventory={openInventory}
+						setOpenInventory={setOpenInventory}
+						homebase={homebase}
+						setHomebase={setHomebase}
+					/>
 				</>
 			)}
 			<OrganizationPanel startingPosition={{ x: 50, y: 150 }} />
-			<Controls selectedOrganization={selectedOrganization} routeList={selectedAirportList}/>
+			<Controls selectedOrganization={selectedOrganization} routeList={selectedAirportList} />
 			{createNewPair && (
 				<div className='absolute top-24 left-1/2 transform -translate-x-1/2 bg-white z-10 rounded-xl px-4 py-2 shadow'>
 					<p>Select 2 markers to create route</p>
@@ -234,7 +244,7 @@ function Dashboard() {
 						},
 						strictBounds: false
 					},
-					fullscreenControl: true,
+					fullscreenControl: false,
 					fullscreenControlOptions: {
 						position: google.maps.ControlPosition.RIGHT_CENTER
 					},
@@ -243,7 +253,6 @@ function Dashboard() {
 					disableDefaultUI: true
 				}}
 			>
-
 				{selectedAirport && selectedAirport.name != 'None' && (
 					<InfoWindow
 						position={{ lat: selectedAirport.lat, lng: selectedAirport.lng }}

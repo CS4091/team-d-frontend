@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { FaTrashCan } from 'react-icons/fa6';
 import Panel from '../Panel';
 import { Button } from '../ui/button';
+import { Route } from 'lucide-react';
 
 interface Props {
 	selectedAirportList: Airport[][];
@@ -35,7 +36,7 @@ const RoutesPanel = ({
 	};
 
 	return (
-		<Panel name='Routes' startingPosition={startingPosition}>
+		<Panel name='Routes' startingPosition={startingPosition} icon={<Route strokeWidth={1.5} />}>
 			<div className='overflow-y-scroll w-full h-full px-4 py-4 flex flex-col gap-2 rounded-b-xl'>
 				{!createNewPair && (
 					<Button className='w-full font-bold' onClick={() => setCreateNewPair(true)}>

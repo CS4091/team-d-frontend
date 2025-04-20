@@ -1,5 +1,14 @@
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuLabel,
+	DropdownMenuSeparator,
+	DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu';
 import { UserContext } from '@/lib/context';
 import { motion } from 'framer-motion';
+import { Bell } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useContext, useEffect, useState } from 'react';
@@ -13,7 +22,7 @@ export const GlassNavbar = () => {
 	const [loggedIn, setLoggedIn] = useState(false);
 	const [loading, setLoading] = useState(true);
 
-	const { user } = useContext(UserContext);
+	const { user, updateUser } = useContext(UserContext);
 
 	useEffect(() => {
 		const token = localStorage.getItem('token');
@@ -25,6 +34,8 @@ export const GlassNavbar = () => {
 
 	const signOut = () => {
 		localStorage.removeItem('token');
+		localStorage.removeItem('selectedOrganization');
+		updateUser();
 		router.replace('/login');
 		setLoggedIn(false);
 	};
@@ -38,12 +49,9 @@ export const GlassNavbar = () => {
 		>
 			<div className='flex items-center justify-between px-5 py-5'>
 				<div className='hidden items-center gap-2 md:flex'>
-                    {loggedIn && <>
 					<GlassLink text='Home' href='/' />
-                    
 					<GlassLink text='Dashboard' href='/dashboard' />
-					<GlassLink text='History' href='/history' />
-                    </>}
+					{/* {loggedIn && <><GlassLink text='History' href='/history' /></>} */}
 				</div>
 				<LogoBox />
 				{!loading && (
@@ -60,9 +68,32 @@ export const GlassNavbar = () => {
 								</Link>
 							</>
 						) : (
-							<button className='relative scale-100 overflow-hidden rounded-lg bg-gradient-to-br from-primary from-40% to-[#8FB1F0] px-4 py-2 font-medium text-white transition-transform hover:scale-105 active:scale-95' onClick={signOut}>
-								Sign out
-							</button>
+							<>
+								<DropdownMenu>
+									<DropdownMenuTrigger className='outline-none'>
+										<div
+											className='rounded-full p-2 
+                                        inset-0 z-0 hover:bg-gradient-to-br from-white/20 to-white/5 transition-all group-hover:opacity-100 hover:scale-105 active:scale-95'
+										>
+											<Bell color='white' className='group relative' strokeWidth={1.5} />
+										</div>
+									</DropdownMenuTrigger>
+									<DropdownMenuContent align='end'>
+										<DropdownMenuLabel className='text-lg pl-4'>Notifications</DropdownMenuLabel>
+										<DropdownMenuSeparator />
+										<DropdownMenuItem>
+											<span className='text-sm text-black/90 px-4 py-2'>You have no new notifications</span>
+										</DropdownMenuItem>
+									</DropdownMenuContent>
+								</DropdownMenu>
+
+								<button
+									className='relative scale-100 overflow-hidden rounded-lg bg-gradient-to-br from-primary from-40% to-[#8FB1F0] px-4 py-2 font-medium text-white transition-transform hover:scale-105 active:scale-95'
+									onClick={signOut}
+								>
+									Sign out
+								</button>
+							</>
 						)}
 
 						<button

@@ -52,7 +52,12 @@ export const UserProvider: React.FC<PropsWithChildren> = ({ children }) => {
 
 	const updateUser = () => {
 		const token = localStorage.getItem('token');
-        console.log(token);
+        const org = localStorage.getItem('selectedOrganization');
+
+        if (org) {
+            setSelectedOrganization(org);
+        }
+
 		if (token) {
 			api.get(`/users/me`)
 				.then((resp) => {
@@ -62,6 +67,17 @@ export const UserProvider: React.FC<PropsWithChildren> = ({ children }) => {
 					console.log(err);
 				});
 		}
+        else {
+            setUser({
+                name: '',
+                email: '',
+                id: '',
+                token: '',
+                organizations: [],
+                activeInvites: []
+            });
+            setSelectedOrganization('');
+        }
 	};
 
 	return <UserContext.Provider value={{ user, updateUser, selectedOrganization, updateSelectedOrganization: setSelectedOrganization }}>{children}</UserContext.Provider>;
