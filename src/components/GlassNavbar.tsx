@@ -15,6 +15,7 @@ import { useContext, useEffect, useState } from 'react';
 import { FiMenu } from 'react-icons/fi';
 import useMeasure from 'react-use-measure';
 import Logo from './assets/Logo';
+import api from '@/lib/axiosConfig';
 
 export const GlassNavbar = () => {
 	const [menuOpen, setMenuOpen] = useState(false);
@@ -83,6 +84,9 @@ export const GlassNavbar = () => {
 										<DropdownMenuSeparator />
 										<DropdownMenuItem>
 											<span className='text-sm text-black/90 px-4 py-2'>You have no new notifications</span>
+                                            {user?.activeInvites.map((inv) => (
+                                                <p>{inv.createdAt.toLocaleDateString()}</p>
+                                            ))}
 										</DropdownMenuItem>
 									</DropdownMenuContent>
 								</DropdownMenu>

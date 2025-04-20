@@ -8,21 +8,21 @@ import EmailTagInput from '../EmailTagInput';
 import NewOrganization from '../NewOrganization';
 import Panel from '../Panel';
 import { Building } from 'lucide-react';
+import { Options } from '../EmailTagInput';
 
 const OrganizationPanel = ({ startingPosition }: { startingPosition: { x: number; y: number } }) => {
 	const [open, setOpen] = useState(false);
 	const [name, setName] = useState('');
 
-	const [selectedEmails, setSelectedEmails] = useState<string[]>([]);
+	const [selectedEmails, setSelectedEmails] = useState<Options[]>([]);
 
 	const { user, updateUser, updateSelectedOrganization, selectedOrganization } = useContext(UserContext);
 
-
-
 	const inviteMembers = () => {
-		api.post('/organizations/invite', {
-			emails: selectedEmails,
-			organizationId: selectedOrganization
+        console.log(selectedEmails)
+		api.post(`/organizations/${selectedOrganization}/invite`, {
+			userId: selectedEmails.map((option: Options) => option.id)[0],
+			id: selectedOrganization
 		})
 			.then((resp) => {
 				console.log(resp);

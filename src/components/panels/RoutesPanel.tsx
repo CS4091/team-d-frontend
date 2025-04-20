@@ -1,19 +1,17 @@
 import { Airport } from '@/interfaces/Airport';
+import { Route } from 'lucide-react';
 import { useState } from 'react';
 import { FaTrashCan } from 'react-icons/fa6';
 import Panel from '../Panel';
 import { Button } from '../ui/button';
-import { Route } from 'lucide-react';
 
 interface Props {
 	selectedAirportList: Airport[][];
 	setSelectedAirportList: React.Dispatch<React.SetStateAction<Airport[][]>>;
 	polylines: google.maps.Polyline[];
 	setPolylines: React.Dispatch<React.SetStateAction<google.maps.Polyline[]>>;
-	createNewPair: boolean;
 	setCreateNewPair: React.Dispatch<React.SetStateAction<boolean>>;
 	startingPosition: { x: number; y: number };
-	setCurrentPair: React.Dispatch<React.SetStateAction<Airport[]>>;
 }
 
 const RoutesPanel = ({
@@ -21,10 +19,8 @@ const RoutesPanel = ({
 	setSelectedAirportList,
 	polylines,
 	setPolylines,
-	createNewPair,
 	setCreateNewPair,
 	startingPosition,
-	setCurrentPair
 }: Props) => {
 	const [hoveredRoute, setHoveredRoute] = useState<number | null>(null);
 
@@ -38,23 +34,9 @@ const RoutesPanel = ({
 	return (
 		<Panel name='Routes' startingPosition={startingPosition} icon={<Route strokeWidth={1.5} />}>
 			<div className='overflow-y-scroll w-full h-full px-4 py-4 flex flex-col gap-2 rounded-b-xl'>
-				{!createNewPair && (
-					<Button className='w-full font-bold' onClick={() => setCreateNewPair(true)}>
-						Create Route
-					</Button>
-				)}
-				{createNewPair && (
-					<Button
-						className='w-full font-bold'
-						variant='destructive'
-						onClick={() => {
-							setCreateNewPair(false);
-							setCurrentPair([]);
-						}}
-					>
-						Cancel New Route
-					</Button>
-				)}
+				<Button className='w-full font-bold' onClick={() => setCreateNewPair(true)}>
+					Create Route
+				</Button>
 				{selectedAirportList.map((airport, i) => (
 					<div
 						key={`${airport[0].name}-${airport[1].name}`}

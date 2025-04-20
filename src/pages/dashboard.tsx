@@ -11,12 +11,6 @@ import { GoogleMap, InfoWindow, useJsApiLoader } from '@react-google-maps/api';
 import { useRouter } from 'next/router';
 import { useContext, useEffect, useRef, useState } from 'react';
 
-const containerStyle = {
-	width: '100%',
-	height: '100%',
-	backgroundColor: '#000000'
-};
-
 const center = { lat: 39.8283, lng: -98.5795 };
 
 const libraries: any[] = ['places'];
@@ -85,7 +79,8 @@ function Dashboard() {
 				icon: {
 					url: `https://maps.google.com/mapfiles/ms/icons/${currentPair.find((air) => air == airport) ? 'blue' : 'red'}-dot.png`,
 					scaledSize: new window.google.maps.Size(40, 40)
-				}
+				},
+				zIndex: 99
 			});
 
 			marker.addListener('click', () => {
@@ -204,9 +199,7 @@ function Dashboard() {
 						setSelectedAirportList={setSelectedAirportList}
 						polylines={polylines}
 						setPolylines={setPolylines}
-						createNewPair={createNewPair}
 						setCreateNewPair={setCreateNewPair}
-						setCurrentPair={setCurrentPair}
 						startingPosition={{ x: 50, y: 400 }}
 					/>
 					<InventoryPanel
@@ -222,14 +215,46 @@ function Dashboard() {
 			<OrganizationPanel startingPosition={{ x: 50, y: 150 }} />
 			<Controls selectedOrganization={selectedOrganization} routeList={selectedAirportList} />
 			{createNewPair && (
-				<div className='absolute top-24 left-1/2 transform -translate-x-1/2 bg-white z-10 rounded-xl px-4 py-2 shadow'>
-					<p>Select 2 markers to create route</p>
+                <div className='absolute top-6 left-1/2 transform -translate-x-1/2 bg-white z-10 rounded-xl px-8 text-lg py-3 font-medium shadow-[0px_0px_15px_2px_rgba(255,255,255,0.2)] flex gap-6 items-center justify-center z-[51]'>
+                    <div className='flex flex-col'>
+
+					<p className='font-semibold'>Select markers to create route</p>
+                    <p className='text-sm text-neutral-400'>Tap selected marker to unselect</p>
+                    </div>
+					<button
+						className='bg-red-300 px-5 py-1 rounded-lg text-red-600 hover:bg-red-200 font-medium'
+						onClick={() => {
+							setCreateNewPair(false);
+							setCurrentPair([]);
+						}}
+					>
+						Cancel
+					</button>
+				</div>
+			)}
+			{selectingHomebase && (
+				<div className='absolute top-6 left-1/2 transform -translate-x-1/2 bg-white z-10 rounded-xl px-8 text-lg py-3 font-medium shadow-[0px_0px_15px_2px_rgba(255,255,255,0.2)] flex gap-6 items-center justify-center z-[51]'>
+					<p className='font-semibold'>Select a marker to set the homebase</p>
+					<button
+						className='bg-red-300 px-5 py-1 rounded-lg text-red-600 hover:bg-red-200 font-medium'
+						onClick={() => {
+							setSelectingHomebase(false);
+							setOpenInventory(true);
+						}}
+					>
+						Cancel
+					</button>
 				</div>
 			)}
 
 			<GoogleMap
 				onLoad={handleMapLoad}
-				mapContainerStyle={containerStyle}
+				mapContainerStyle={{
+					width: '100%',
+					height: '100%',
+					backgroundColor: '#000000',
+					zIndex: (selectingHomebase || createNewPair) ? 50 : 1
+				}}
 				center={center}
 				zoom={4}
 				options={{
@@ -258,8 +283,9 @@ function Dashboard() {
 						position={{ lat: selectedAirport.lat, lng: selectedAirport.lng }}
 						onCloseClick={() => setSelectedAirport({ lat: 0, lng: 0, name: 'None', id: '' })}
 					>
-						<div className='flex flex-col gap-6 max-w-64'>
-							<p className='text-md font-bold text-center'>{selectedAirport.name}</p>
+						<div className='flex flex-col items-start gap-2 max-w-64'>
+							<p className='text-[16px] font-bold'>{selectedAirport.name}</p>
+							<p className='text-[15px] font-medium text-neutral-500'>Airport ID - {selectedAirport.id}</p>
 						</div>
 					</InfoWindow>
 				)}
