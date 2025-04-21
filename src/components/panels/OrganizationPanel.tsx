@@ -19,10 +19,8 @@ const OrganizationPanel = ({ startingPosition }: { startingPosition: { x: number
 	const { user, updateUser, updateSelectedOrganization, selectedOrganization } = useContext(UserContext);
 
 	const inviteMembers = () => {
-        console.log(selectedEmails)
 		api.post(`/organizations/${selectedOrganization}/invite`, {
 			userId: selectedEmails.map((option: Options) => option.id)[0],
-			id: selectedOrganization
 		})
 			.then((resp) => {
 				console.log(resp);

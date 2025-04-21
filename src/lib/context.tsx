@@ -8,7 +8,11 @@ export interface ActiveInvite {
 	userId: string;
 	token: string;
 	orgId: string;
-	createdAt: Date;
+	createdAt: string;
+	organization: {
+		name: string;
+		id: string;
+	};
 }
 
 export interface User {
@@ -23,15 +27,15 @@ export interface User {
 interface UserContextType {
 	user: User;
 	updateUser: () => void;
-    selectedOrganization: string;
-    updateSelectedOrganization: (orgId: string) => void;
+	selectedOrganization: string;
+	updateSelectedOrganization: (orgId: string) => void;
 }
 
 export const UserContext = createContext<UserContextType>({
-	user: { name: '', email: '', id: '', token: '',organizations: [], activeInvites: [] },
+	user: { name: '', email: '', id: '', token: '', organizations: [], activeInvites: [] },
 	updateUser: () => {},
-    selectedOrganization: '',
-    updateSelectedOrganization: () => {},
+	selectedOrganization: '',
+	updateSelectedOrganization: () => {}
 });
 
 export const UserProvider: React.FC<PropsWithChildren> = ({ children }) => {
@@ -44,7 +48,7 @@ export const UserProvider: React.FC<PropsWithChildren> = ({ children }) => {
 		activeInvites: []
 	});
 
-    const [selectedOrganization, setSelectedOrganization] = useState<string>('');
+	const [selectedOrganization, setSelectedOrganization] = useState<string>('');
 
 	useEffect(() => {
 		updateUser();
@@ -52,34 +56,37 @@ export const UserProvider: React.FC<PropsWithChildren> = ({ children }) => {
 
 	const updateUser = () => {
 		const token = localStorage.getItem('token');
-        const org = localStorage.getItem('selectedOrganization');
+		const org = localStorage.getItem('selectedOrganization');
 
-        if (org) {
-            setSelectedOrganization(org);
-        }
+		if (org) {
+			setSelectedOrganization(org);
+		}
 
 		if (token) {
 			api.get(`/users/me`)
 				.then((resp) => {
 					setUser(resp.data);
-                    console.log(resp.data)
+					console.log(resp.data);
 				})
 				.catch((err) => {
 					console.log(err);
 				});
+		} else {
+			setUser({
+				name: '',
+				email: '',
+				id: '',
+				token: '',
+				organizations: [],
+				activeInvites: []
+			});
+			setSelectedOrganization('');
 		}
-        else {
-            setUser({
-                name: '',
-                email: '',
-                id: '',
-                token: '',
-                organizations: [],
-                activeInvites: []
-            });
-            setSelectedOrganization('');
-        }
 	};
 
-	return <UserContext.Provider value={{ user, updateUser, selectedOrganization, updateSelectedOrganization: setSelectedOrganization }}>{children}</UserContext.Provider>;
+	return (
+		<UserContext.Provider value={{ user, updateUser, selectedOrganization, updateSelectedOrganization: setSelectedOrganization }}>
+			{children}
+		</UserContext.Provider>
+	);
 };

@@ -1,11 +1,4 @@
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuLabel,
-	DropdownMenuSeparator,
-	DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { UserContext } from '@/lib/context';
 import { motion } from 'framer-motion';
 import { Bell } from 'lucide-react';
@@ -15,6 +8,7 @@ import { useContext, useEffect, useState } from 'react';
 import { FiMenu } from 'react-icons/fi';
 import useMeasure from 'react-use-measure';
 import Logo from './assets/Logo';
+import { Button } from './ui/button';
 import api from '@/lib/axiosConfig';
 
 export const GlassNavbar = () => {
@@ -40,6 +34,17 @@ export const GlassNavbar = () => {
 		router.replace('/login');
 		setLoggedIn(false);
 	};
+
+    const acceptInvite = (token: string) => {
+        api.post('/organizations/accept-invite', { token })
+        .then((resp) => {
+            console.log(resp.data);
+            updateUser();
+        })
+        .catch((err) => {
+            console.log(err);
+        })
+    }
 
 	return (
 		<motion.nav
@@ -79,15 +84,33 @@ export const GlassNavbar = () => {
 											<Bell color='white' className='group relative' strokeWidth={1.5} />
 										</div>
 									</DropdownMenuTrigger>
-									<DropdownMenuContent align='end'>
+									<DropdownMenuContent align='end' className='w-96'>
 										<DropdownMenuLabel className='text-lg pl-4'>Notifications</DropdownMenuLabel>
 										<DropdownMenuSeparator />
-										<DropdownMenuItem>
-											<span className='text-sm text-black/90 px-4 py-2'>You have no new notifications</span>
-                                            {user?.activeInvites.map((inv) => (
-                                                <p>{inv.createdAt.toLocaleDateString()}</p>
-                                            ))}
-										</DropdownMenuItem>
+										{user?.activeInvites.length == 0 && (
+									
+												<p className='px-4 py-2 font-medium text-center'>You have no new notifications</p>
+									
+										)}
+										{user?.activeInvites.map((inv) => (
+											<>
+												<div key={inv.token} className='px-4 py-2 gap-4 flex flex-col'>
+													<div className='flex flex-col justify-center'>
+														<p className='font-semibold'>You have been invited to join {inv.organization.name}</p>
+														<p className='text-sm text-neutral-500 font-merriweather'>
+															{new Date(inv.createdAt).toLocaleString()}
+														</p>
+													</div>
+													<div className='flex gap-2 w-full'>
+														<Button variant={'destructive'} className='w-full'>
+															Decline
+														</Button>
+														<Button className='w-full' onClick={() => acceptInvite(inv.token)}>Accept</Button>
+													</div>
+												</div>
+												<DropdownMenuSeparator />
+											</>
+										))}
 									</DropdownMenuContent>
 								</DropdownMenu>
 
