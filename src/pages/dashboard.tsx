@@ -10,6 +10,7 @@ import { Cluster, MarkerClusterer } from '@googlemaps/markerclusterer';
 import { GoogleMap, InfoWindow, useJsApiLoader } from '@react-google-maps/api';
 import { useRouter } from 'next/router';
 import { useContext, useEffect, useRef, useState } from 'react';
+import { Airplane } from '@/interfaces/Airplane';
 
 const center = { lat: 39.8283, lng: -98.5795 };
 
@@ -17,7 +18,7 @@ const libraries: any[] = ['places'];
 
 function Dashboard() {
 	const [airports, setAirports] = useState<Airport[]>([]);
-	const [selectedAirport, setSelectedAirport] = useState<Airport>({ lat: 0, lng: 0, name: 'None', id: '' });
+	const [selectedAirport, setSelectedAirport] = useState<Airport | null>(null);
 	const [currentPair, setCurrentPair] = useState<Airport[]>([]);
 	const [selectedAirportList, setSelectedAirportList] = useState<Airport[][]>([]);
 	const [polylines, setPolylines] = useState<google.maps.Polyline[]>([]);
@@ -29,6 +30,8 @@ function Dashboard() {
 	const [selectingHomebase, setSelectingHomebase] = useState(false);
 	const [openInventory, setOpenInventory] = useState(false);
 	const [homebase, setHomebase] = useState<{ name: string; id: string }>({ name: '', id: '' });
+
+    const [model, setModel] = useState<Airplane | null>(null);
 
 	const mapRef = useRef<google.maps.Map | null>(null);
 	const router = useRouter();
@@ -73,6 +76,11 @@ function Dashboard() {
 		const routeMarkers: google.maps.Marker[] = [];
 
 		airports.forEach((airport) => {
+            if (model && airport.runways.some(runway => runway.length < model.takeoffRunway)) {
+                return;
+            }
+        
+
 			const marker = new google.maps.Marker({
 				position: { lat: airport.lat, lng: airport.lng },
 				title: airport.name,
@@ -209,6 +217,8 @@ function Dashboard() {
 						setOpenInventory={setOpenInventory}
 						homebase={homebase}
 						setHomebase={setHomebase}
+                        model={model}
+                        setModel={setModel}
 					/>
 				</>
 			)}
@@ -222,7 +232,7 @@ function Dashboard() {
                     <p className='text-sm text-neutral-400'>Tap selected marker to unselect</p>
                     </div>
 					<button
-						className='bg-red-300 px-5 py-1 rounded-lg text-red-600 hover:bg-red-200 font-medium'
+						className='bg-red-200 px-5 py-1 rounded-lg text-red-600 hover:bg-red-300 font-medium'
 						onClick={() => {
 							setCreateNewPair(false);
 							setCurrentPair([]);
@@ -236,7 +246,7 @@ function Dashboard() {
 				<div className='absolute top-6 left-1/2 transform -translate-x-1/2 bg-white z-10 rounded-xl px-8 text-lg py-3 font-medium shadow-[0px_0px_15px_2px_rgba(255,255,255,0.2)] flex gap-6 items-center justify-center z-[51]'>
 					<p className='font-semibold'>Select a marker to set the homebase</p>
 					<button
-						className='bg-red-300 px-5 py-1 rounded-lg text-red-600 hover:bg-red-200 font-medium'
+						className='bg-red-200 px-5 py-1 rounded-lg text-red-600 hover:bg-red-300 font-medium'
 						onClick={() => {
 							setSelectingHomebase(false);
 							setOpenInventory(true);
@@ -281,7 +291,7 @@ function Dashboard() {
 				{selectedAirport && selectedAirport.name != 'None' && (
 					<InfoWindow
 						position={{ lat: selectedAirport.lat, lng: selectedAirport.lng }}
-						onCloseClick={() => setSelectedAirport({ lat: 0, lng: 0, name: 'None', id: '' })}
+						onCloseClick={() => setSelectedAirport(null)}
 					>
 						<div className='flex flex-col items-start gap-2 max-w-64'>
 							<p className='text-[16px] font-bold'>{selectedAirport.name}</p>

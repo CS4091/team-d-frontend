@@ -14,14 +14,7 @@ interface Props {
 	startingPosition: { x: number; y: number };
 }
 
-const RoutesPanel = ({
-	selectedAirportList,
-	setSelectedAirportList,
-	polylines,
-	setPolylines,
-	setCreateNewPair,
-	startingPosition,
-}: Props) => {
+const RoutesPanel = ({ selectedAirportList, setSelectedAirportList, polylines, setPolylines, setCreateNewPair, startingPosition }: Props) => {
 	const [hoveredRoute, setHoveredRoute] = useState<number | null>(null);
 
 	const removeRoute = (index: number) => {
@@ -45,13 +38,16 @@ const RoutesPanel = ({
 						onClick={() => removeRoute(i)}
 					>
 						<div
-							className={`flex bg-gray-200 px-4 py-2 rounded-xl gap-5 items-center relative cursor-pointer transition-all duration-200 ${
+							className={`flex flex-col bg-gray-200 px-4 py-2 rounded-xl gap-5 relative cursor-pointer h-full transition-all duration-200 ${
 								hoveredRoute === i ? 'bg-red-500 opacity-60' : ''
 							}`}
 						>
-							<p className='text-lg py-2 font-bold'>{i + 1}</p>
-							<div className='flex flex-col'>
+							{/* <p className='text-lg py-2 font-bold'>{i + 1}</p> */}
+							<div className='grid grid-cols-[4rem_auto] w-full gap-y-1'>
+								<p className='text-sm font-bold'>FROM</p>
 								<p className='text-sm'>{airport[0].name}</p>
+
+								<p className='text-sm font-bold'>TO</p>
 								<p className='text-sm'>{airport[1].name}</p>
 							</div>
 						</div>

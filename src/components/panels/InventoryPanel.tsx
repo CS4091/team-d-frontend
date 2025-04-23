@@ -1,10 +1,11 @@
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Airplane } from '@/interfaces/Airplane';
 import { Asset } from '@/interfaces/Asset';
 import api from '@/lib/axiosConfig';
 import { UserContext } from '@/lib/context';
-import { Archive } from 'lucide-react';
+import { Plane } from 'lucide-react';
 import { useContext, useEffect, useState } from 'react';
 import { FaTrashCan } from 'react-icons/fa6';
 import Panel from '../Panel';
@@ -18,13 +19,15 @@ interface Props {
 	setOpenInventory: (openInventory: boolean) => void;
 	homebase: { name: string; id: string };
 	setHomebase: (homebase: { name: string; id: string }) => void;
+	model: Airplane | null;
+	setModel: (model: Airplane | null) => void;
 }
 
-const InventoryPanel = ({ startingPosition, setSelectingHomebase, openInventory, setOpenInventory, homebase, setHomebase }: Props) => {
+const InventoryPanel = ({ startingPosition, setSelectingHomebase, openInventory, setOpenInventory, homebase, setHomebase, model, setModel }: Props) => {
 	const { user, selectedOrganization } = useContext(UserContext);
 	const [manufacturer, setManufacturer] = useState('');
-	const [model, setModel] = useState('');
-	const [modelList, setModelList] = useState<string[]>(['B733', 'B741', 'A320', 'A332']);
+
+	const [modelList, setModelList] = useState<Airplane[]>([]);
 	const [inventory, setInventory] = useState<Asset[]>([]);
 	const [hoveredRoute, setHoveredRoute] = useState<number | null>(null);
 
@@ -43,7 +46,8 @@ const InventoryPanel = ({ startingPosition, setSelectingHomebase, openInventory,
 	useEffect(() => {
 		api.get('/aviation/planes')
 			.then((resp) => {
-				setModelList(resp.data.map((plane: any) => plane.model));
+				console.log(resp.data);
+				setModelList(resp.data);
 			})
 			.catch((err) => {
 				console.log(err);
@@ -53,14 +57,13 @@ const InventoryPanel = ({ startingPosition, setSelectingHomebase, openInventory,
 	const addPlane = () => {
 		api.post(`/organizations/${selectedOrganization}/assets`, {
 			manufacturer,
-			model,
+			model: model?.model,
 			homeBase: homebase.id
 		})
 			.then((resp) => {
 				setInventory((prev) => [...prev, resp.data]);
-				console.log(resp.data);
 				setManufacturer('');
-				setModel('');
+				setModel(null);
 				setHomebase({ name: '', id: '' });
 				setOpenInventory(false);
 			})
@@ -69,21 +72,40 @@ const InventoryPanel = ({ startingPosition, setSelectingHomebase, openInventory,
 			});
 	};
 
-	const removePlane = (index: number) => {
-		setInventory((prevList) => prevList.filter((_, i) => i !== index));
-
-		// TODO: endpoint to remove plane from inventory
+	const removePlane = (id: string) => {
+		setInventory((prevList) => prevList.filter((asset) => asset.id !== id));
+		api.delete(`/organizations/${selectedOrganization}/assets/${id}`)
+			.then((resp) => {
+			})
+			.catch((err) => {
+				console.log(err);
+			});
 	};
 
 	return (
-		<Dialog open={openInventory} onOpenChange={setOpenInventory}>
-			<Panel name='Inventory' startingPosition={startingPosition} icon={<Archive strokeWidth={1.5} />}>
+		<Dialog
+			open={openInventory}
+			onOpenChange={(open) => {
+				setOpenInventory(open);
+				if (!open) {
+					setManufacturer('');
+					setModel(null);
+					setHomebase({ name: '', id: '' });
+				}
+			}}
+		>
+			<Panel name='Inventory' startingPosition={startingPosition} icon={<Plane strokeWidth={1.5} />}>
 				<div className='overflow-y-scroll w-full h-full px-4 py-4 flex flex-col gap-2 rounded-b-xl'>
 					<DialogTrigger asChild>
 						<Button className='w-full font-bold'>New Plane</Button>
 					</DialogTrigger>
 					{inventory.map((asset, i) => (
-						<div key={asset.id} onMouseEnter={() => setHoveredRoute(i)} onMouseLeave={() => setHoveredRoute(null)} onClick={() => removePlane(i)}>
+						<div
+							key={asset.id}
+							onMouseEnter={() => setHoveredRoute(i)}
+							onMouseLeave={() => setHoveredRoute(null)}
+							onClick={() => removePlane(asset.id)}
+						>
 							<div
 								className={`flex bg-gray-200 px-4 py-2 rounded-xl gap-5 items-center relative cursor-pointer transition-all duration-200 ${
 									hoveredRoute === i ? 'bg-red-500 opacity-60' : ''
@@ -129,9 +151,9 @@ const InventoryPanel = ({ startingPosition, setSelectingHomebase, openInventory,
 						<div className='flex flex-col gap-2 w-full'>
 							<Label>Model</Label>
 							<Select
-								value={model}
+								value={model ? JSON.stringify(model) : ''}
 								onValueChange={(value) => {
-									setModel(value);
+									setModel(JSON.parse(value));
 								}}
 							>
 								<SelectTrigger className='w-full'>
@@ -139,8 +161,8 @@ const InventoryPanel = ({ startingPosition, setSelectingHomebase, openInventory,
 								</SelectTrigger>
 								<SelectContent>
 									{modelList.map((mod) => (
-										<SelectItem key={mod} value={mod}>
-											{mod}
+										<SelectItem key={mod.model} value={JSON.stringify(mod)}>
+											{mod.model}
 										</SelectItem>
 									))}
 								</SelectContent>
@@ -163,6 +185,7 @@ const InventoryPanel = ({ startingPosition, setSelectingHomebase, openInventory,
 										setSelectingHomebase(true);
 										setOpenInventory(false);
 									}}
+									disabled={!model}
 								>
 									Select Airport
 								</Button>
