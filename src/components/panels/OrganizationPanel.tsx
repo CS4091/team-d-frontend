@@ -96,7 +96,7 @@ const OrganizationPanel = ({ startingPosition }: { startingPosition: { x: number
 								<SelectValue placeholder='Select organization' />
 							</SelectTrigger>
 							<SelectContent>
-								{user?.organizations.map((org) => (
+								{user?.organizations?.map((org) => (
 									<SelectItem key={org.id} value={org.id}>
 										{org.name}
 									</SelectItem>

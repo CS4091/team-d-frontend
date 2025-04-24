@@ -56,7 +56,7 @@ export const GlassNavbar = () => {
 			<div className='flex items-center justify-between px-5 py-5'>
 				<div className='hidden items-center gap-2 md:flex'>
 					<GlassLink text='Home' href='/' />
-					<GlassLink text='Dashboard' href='/dashboard' />
+					{loggedIn && <GlassLink text='Dashboard' href='/dashboard' />}
 					{/* {loggedIn && <><GlassLink text='History' href='/history' /></>} */}
 				</div>
 				<LogoBox />
