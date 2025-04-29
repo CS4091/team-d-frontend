@@ -11,6 +11,7 @@ import { GoogleMap, InfoWindow, useJsApiLoader } from '@react-google-maps/api';
 import { useRouter } from 'next/router';
 import { useContext, useEffect, useRef, useState } from 'react';
 import { Airplane } from '@/interfaces/Airplane';
+import { Route } from '@/interfaces/Route';
 
 const center = { lat: 39.8283, lng: -98.5795 };
 
@@ -20,15 +21,19 @@ function Dashboard() {
 	const [airports, setAirports] = useState<Airport[]>([]);
 	const [selectedAirport, setSelectedAirport] = useState<Airport | null>(null);
 	const [currentPair, setCurrentPair] = useState<Airport[]>([]);
-	const [selectedAirportList, setSelectedAirportList] = useState<Airport[][]>([]);
 	const [polylines, setPolylines] = useState<google.maps.Polyline[]>([]);
 	const [createNewPair, setCreateNewPair] = useState(false);
+    const [passengers, setPassengers] = useState(1);
+
 	const clustererRef = useRef<MarkerClusterer | null>(null);
 	const clusteredMarkersRef = useRef<google.maps.Marker[]>([]);
 	const routeMarkersRef = useRef<google.maps.Marker[]>([]);
+    
+    const [routeList, setRouteList] = useState<Route[]>([]);
 
 	const [selectingHomebase, setSelectingHomebase] = useState(false);
 	const [openInventory, setOpenInventory] = useState(false);
+	const [openRoutes, setOpenRoutes] = useState(false);
 	const [homebase, setHomebase] = useState<{ name: string; id: string }>({ name: '', id: '' });
 
     const [model, setModel] = useState<Airplane | null>(null);
@@ -85,7 +90,7 @@ function Dashboard() {
 				position: { lat: airport.lat, lng: airport.lng },
 				title: airport.name,
 				icon: {
-					url: `https://maps.google.com/mapfiles/ms/icons/${currentPair.find((air) => air == airport) ? 'blue' : 'red'}-dot.png`,
+					url: `https://maps.google.com/mapfiles/ms/icons/${currentPair.length === 1 && currentPair.find((air) => air == airport) ? 'blue' : 'red'}-dot.png`,
 					scaledSize: new window.google.maps.Size(40, 40)
 				},
 				zIndex: 99
@@ -111,7 +116,7 @@ function Dashboard() {
 			});
 
 			// Check if this marker is part of a selected route
-			const isInRoute = selectedAirportList.some((pair) => pair.some((air) => air.name === airport.name));
+			const isInRoute = routeList.some((pair) => pair.from.name === airport.name || pair.to.name === airport.name);
 
 			if (isInRoute) {
 				marker.setMap(mapRef.current); // Always show route markers
@@ -157,7 +162,7 @@ function Dashboard() {
 				clustererRef.current?.clearMarkers();
 			}
 		};
-	}, [airports, selectedAirportList, createNewPair, currentPair, selectingHomebase]);
+	}, [airports, routeList, createNewPair, currentPair, selectingHomebase]);
 
 	const addAirport = (airport: Airport) => {
 		if (!mapRef.current) return;
@@ -165,23 +170,10 @@ function Dashboard() {
 			return;
 		}
 		if (currentPair.length == 1) {
-			let polyline = new google.maps.Polyline({
-				path: [
-					{ lat: currentPair[0].lat, lng: currentPair[0].lng },
-					{ lat: airport.lat, lng: airport.lng }
-				],
-				strokeColor: '#0000FF',
-				strokeOpacity: 1.0,
-				strokeWeight: 2
-			});
-
-			setPolylines([...polylines, polyline]);
-			polyline.setMap(mapRef.current);
-
-			setSelectedAirportList([...selectedAirportList, [...currentPair, airport]]);
-			setCurrentPair([]);
-
+			
+            setCurrentPair([...currentPair, airport])
 			setCreateNewPair(false);
+            setOpenRoutes(true);
 		} else {
 			setCurrentPair([airport]);
 		}
@@ -203,12 +195,19 @@ function Dashboard() {
 			{selectedOrganization != '' && (
 				<>
 					<RoutesPanel
-						selectedAirportList={selectedAirportList}
-						setSelectedAirportList={setSelectedAirportList}
+						routeList={routeList}
+						setRouteList={setRouteList}
 						polylines={polylines}
 						setPolylines={setPolylines}
 						setCreateNewPair={setCreateNewPair}
 						startingPosition={{ x: 50, y: 400 }}
+                        passengers={passengers}
+                        setPassengers={setPassengers}
+                        currentPair={currentPair}
+                        setCurrentPair={setCurrentPair}
+                        openRoutes={openRoutes}
+                        setOpenRoutes={setOpenRoutes}
+                        mapRef={mapRef}
 					/>
 					<InventoryPanel
 						startingPosition={{ x: 50, y: 600 }}
@@ -223,9 +222,9 @@ function Dashboard() {
 				</>
 			)}
 			<OrganizationPanel startingPosition={{ x: 50, y: 150 }} />
-			<Controls selectedOrganization={selectedOrganization} routeList={selectedAirportList} />
+			<Controls selectedOrganization={selectedOrganization} routeList={routeList} />
 			{createNewPair && (
-                <div className='absolute top-6 left-1/2 transform -translate-x-1/2 bg-white z-10 rounded-xl px-8 text-lg py-3 font-medium shadow-[0px_0px_15px_2px_rgba(255,255,255,0.2)] flex gap-6 items-center justify-center z-[51]'>
+                <div className='absolute top-6 left-1/2 transform -translate-x-1/2 bg-white rounded-xl px-8 text-lg py-3 font-medium shadow-[0px_0px_15px_2px_rgba(255,255,255,0.2)] flex gap-6 items-center justify-center z-[51]'>
                     <div className='flex flex-col'>
 
 					<p className='font-semibold'>Select markers to create route</p>
@@ -235,7 +234,7 @@ function Dashboard() {
 						className='bg-red-200 px-5 py-1 rounded-lg text-red-600 hover:bg-red-300 font-medium'
 						onClick={() => {
 							setCreateNewPair(false);
-							setCurrentPair([]);
+							setOpenRoutes(true);
 						}}
 					>
 						Cancel
@@ -243,7 +242,7 @@ function Dashboard() {
 				</div>
 			)}
 			{selectingHomebase && (
-				<div className='absolute top-6 left-1/2 transform -translate-x-1/2 bg-white z-10 rounded-xl px-8 text-lg py-3 font-medium shadow-[0px_0px_15px_2px_rgba(255,255,255,0.2)] flex gap-6 items-center justify-center z-[51]'>
+				<div className='absolute top-6 left-1/2 transform -translate-x-1/2 bg-white rounded-xl px-8 text-lg py-3 font-medium shadow-[0px_0px_15px_2px_rgba(255,255,255,0.2)] flex gap-6 items-center justify-center z-[51]'>
 					<p className='font-semibold'>Select a marker to set the homebase</p>
 					<button
 						className='bg-red-200 px-5 py-1 rounded-lg text-red-600 hover:bg-red-300 font-medium'

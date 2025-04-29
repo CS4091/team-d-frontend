@@ -11,6 +11,7 @@ import { FaTrashCan } from 'react-icons/fa6';
 import Panel from '../Panel';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
+import { toast } from 'react-toastify';
 
 interface Props {
 	startingPosition: { x: number; y: number };
@@ -46,7 +47,6 @@ const InventoryPanel = ({ startingPosition, setSelectingHomebase, openInventory,
 	useEffect(() => {
 		api.get('/aviation/planes')
 			.then((resp) => {
-				console.log(resp.data);
 				setModelList(resp.data);
 			})
 			.catch((err) => {
@@ -58,7 +58,7 @@ const InventoryPanel = ({ startingPosition, setSelectingHomebase, openInventory,
 		api.post(`/organizations/${selectedOrganization}/assets`, {
 			manufacturer,
 			model: model?.model,
-			homeBase: homebase.id
+			homeBase: homebase.id,
 		})
 			.then((resp) => {
 				setInventory((prev) => [...prev, resp.data]);
@@ -66,6 +66,7 @@ const InventoryPanel = ({ startingPosition, setSelectingHomebase, openInventory,
 				setModel(null);
 				setHomebase({ name: '', id: '' });
 				setOpenInventory(false);
+                toast("Successfully created new plane!", {type: "success"})
 			})
 			.catch((err) => {
 				console.log(err);
@@ -75,8 +76,7 @@ const InventoryPanel = ({ startingPosition, setSelectingHomebase, openInventory,
 	const removePlane = (id: string) => {
 		setInventory((prevList) => prevList.filter((asset) => asset.id !== id));
 		api.delete(`/organizations/${selectedOrganization}/assets/${id}`)
-			.then((resp) => {
-			})
+			.then((resp) => {})
 			.catch((err) => {
 				console.log(err);
 			});
@@ -94,10 +94,10 @@ const InventoryPanel = ({ startingPosition, setSelectingHomebase, openInventory,
 				}
 			}}
 		>
-			<Panel name='Inventory' startingPosition={startingPosition} icon={<Plane strokeWidth={1.5} />}>
-				<div className='overflow-y-scroll w-full h-full px-4 py-4 flex flex-col gap-2 rounded-b-xl'>
+			<Panel name="Inventory" startingPosition={startingPosition} icon={<Plane strokeWidth={1.5} />}>
+				<div className="overflow-y-scroll w-full h-full px-4 py-4 flex flex-col gap-2 rounded-b-xl">
 					<DialogTrigger asChild>
-						<Button className='w-full font-bold'>New Plane</Button>
+						<Button className="w-full font-bold">New Plane</Button>
 					</DialogTrigger>
 					{inventory.map((asset, i) => (
 						<div
@@ -111,13 +111,13 @@ const InventoryPanel = ({ startingPosition, setSelectingHomebase, openInventory,
 									hoveredRoute === i ? 'bg-red-500 opacity-60' : ''
 								}`}
 							>
-								<p className='text-lg py-2 font-bold'>{i + 1}</p>
-								<div className='flex flex-col'>
-									<div className='flex gap-1'>
-										<p className='font-bold'>{asset.manufacturer} - </p>
-										<p className='font-bold font-merriweather'>{asset.model}</p>
+								<p className="text-lg py-2 font-bold">{i + 1}</p>
+								<div className="flex flex-col">
+									<div className="flex gap-1">
+										<p className="font-bold">{asset.manufacturer} - </p>
+										<p className="font-bold font-merriweather">{asset.model}</p>
 									</div>
-									<p className='text-sm font-medium'>{asset.homeBase}</p>
+									<p className="text-sm font-medium">{asset.homeBase}</p>
 								</div>
 							</div>
 							{hoveredRoute === i && (
@@ -127,28 +127,27 @@ const InventoryPanel = ({ startingPosition, setSelectingHomebase, openInventory,
 										left: '50%',
 										top: '50%',
 										transform: 'translateY(-50%) translateX(-50%)',
-										cursor: 'pointer'
+										cursor: 'pointer',
 									}}
 								>
-									<FaTrashCan color='white' size={24} className='shadow-2xl' />
+									<FaTrashCan color="white" size={24} className="shadow-2xl" />
 								</div>
 							)}
 						</div>
 					))}
 				</div>
 			</Panel>
-			<DialogContent className='sm:max-w-md bg-[#ffffff]'>
+			<DialogContent className="sm:max-w-md bg-[#ffffff]">
 				<DialogHeader>
-					<DialogTitle>New Plane</DialogTitle>
-					<DialogDescription className='font-merriweather'>Enter the details of your plane</DialogDescription>
+					<DialogTitle className="text-2xl font-bold">New Plane</DialogTitle>
 				</DialogHeader>
-				<div className='mt-2'>
-					<div className='flex flex-col w-full items-center gap-4'>
-						<div className='flex flex-col gap-2 w-full'>
+				<div className="mt-2">
+					<div className="flex flex-col w-full items-center gap-4">
+						<div className="flex flex-col gap-2 w-full">
 							<Label>Manufacturer</Label>
-							<Input type='text' placeholder='Enter manufacturer name' value={manufacturer} onChange={(e) => setManufacturer(e.target.value)} />
+							<Input type="text" placeholder="Enter manufacturer name" value={manufacturer} onChange={(e) => setManufacturer(e.target.value)} />
 						</div>
-						<div className='flex flex-col gap-2 w-full'>
+						<div className="flex flex-col gap-2 w-full">
 							<Label>Model</Label>
 							<Select
 								value={model ? JSON.stringify(model) : ''}
@@ -156,8 +155,8 @@ const InventoryPanel = ({ startingPosition, setSelectingHomebase, openInventory,
 									setModel(JSON.parse(value));
 								}}
 							>
-								<SelectTrigger className='w-full'>
-									<SelectValue placeholder='Select model' />
+								<SelectTrigger className="w-full">
+									<SelectValue placeholder="Select model" />
 								</SelectTrigger>
 								<SelectContent>
 									{modelList.map((mod) => (
@@ -169,15 +168,15 @@ const InventoryPanel = ({ startingPosition, setSelectingHomebase, openInventory,
 							</Select>
 						</div>
 
-						<div className='flex flex-col gap-2 w-full'>
+						<div className="flex flex-col gap-2 w-full">
 							<Label>Homebase</Label>
-							<div className='flex items-center gap-2'>
+							<div className="flex items-center gap-2">
 								<Input
 									value={homebase.name}
 									readOnly={true}
 									disabled={homebase.name == ''}
-									placeholder='No airport selected'
-									className='w-full'
+									placeholder="No airport selected"
+									className="w-full"
 								/>
 								<Button
 									variant={'secondary'}
@@ -194,7 +193,7 @@ const InventoryPanel = ({ startingPosition, setSelectingHomebase, openInventory,
 					</div>
 				</div>
 				<DialogFooter>
-					<Button className='w-full font-bold' onClick={addPlane}>
+					<Button className="w-full font-bold" onClick={addPlane}>
 						Add Plane
 					</Button>
 				</DialogFooter>

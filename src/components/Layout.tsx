@@ -1,6 +1,7 @@
 import { UserProvider } from '@/lib/context';
 import { JSX } from 'react';
 import { GlassNavbar } from './GlassNavbar';
+import { ToastContainer } from 'react-toastify';
 
 const Layout = ({ children }: { children: JSX.Element }) => {
 	return (
@@ -10,6 +11,7 @@ const Layout = ({ children }: { children: JSX.Element }) => {
                 <GlassNavbar/>
 				{children}
 			</div>
+            <ToastContainer />
 		</UserProvider>
 	);
 };

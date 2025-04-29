@@ -6,6 +6,7 @@ import api from '@/lib/axiosConfig';
 import { UserContext } from '@/lib/context';
 import { Plus } from 'lucide-react';
 import { useContext, useState } from 'react';
+import { toast } from 'react-toastify';
 
 const NewOrganization = () => {
 	const [open, setOpen] = useState(false);
@@ -21,6 +22,8 @@ const NewOrganization = () => {
 				console.log(resp);
 				updateUser();
 				setOpen(false);
+                toast("Organization has been created!", {type: "success"})
+                
 			})
 			.catch((err) => {
 				console.log(err);

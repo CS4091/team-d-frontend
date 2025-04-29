@@ -9,6 +9,8 @@ import EmailTagInput, { Options } from '../EmailTagInput';
 import NewOrganization from '../NewOrganization';
 import Panel from '../Panel';
 import { Input } from '../ui/input';
+import { Search } from 'lucide-react';
+import { toast } from 'react-toastify';
 
 export interface Member {
 	name: string;
@@ -33,8 +35,9 @@ const OrganizationPanel = ({ startingPosition }: { startingPosition: { x: number
 	const [selectedEmails, setSelectedEmails] = useState<Options[]>([]);
 	const [pendingInvites, setPendingInvites] = useState<Invite[]>([]);
 	const [members, setMembers] = useState<Member[]>([]);
+	const [searchValue, setSearchValue] = useState('');
 
-	const { user, updateUser, updateSelectedOrganization, selectedOrganization } = useContext(UserContext);
+	const { user, updateSelectedOrganization, selectedOrganization } = useContext(UserContext);
 
 	useEffect(() => {
 		api.get(`/organizations/${selectedOrganization}`)
@@ -48,23 +51,24 @@ const OrganizationPanel = ({ startingPosition }: { startingPosition: { x: number
 			});
 	}, [selectedOrganization]);
 
-    const removeMember = (member: Member) => {
-        return
-    }
-
-    const removePending = (member: Member) => {
-        return
-    }
-    
+	const removePending = (member: Member) => {
+		return;
+	};
 
 	const inviteMembers = () => {
 		api.post(`/organizations/${selectedOrganization}/invite`, {
-			userId: selectedEmails.map((option: Options) => option.id)[0]
+			userId: selectedEmails.map((option: Options) => option.id)[0],
 		})
 			.then((resp) => {
-				console.log(resp);
-				updateUser();
-				setOpen(false);
+				api.get(`/organizations/${selectedOrganization}`)
+					.then((resp) => {
+						setSelectedEmails([]);
+						setPendingInvites(resp.data.activeInvites);
+                        toast("Invite(s) have been sent out!", {type: "success"})
+					})
+					.catch((err) => {
+						console.log(err);
+					});
 			})
 			.catch((err) => {
 				console.log(err);
@@ -81,9 +85,9 @@ const OrganizationPanel = ({ startingPosition }: { startingPosition: { x: number
 				}
 			}}
 		>
-			<Panel name='Organizations' startingPosition={startingPosition} icon={<Building strokeWidth={1.5} />}>
-				<div className='overflow-y-scroll w-full h-full px-4 py-4 flex flex-col gap-2 rounded-b-xl'>
-					<div className='flex gap-2'>
+			<Panel name="Organizations" startingPosition={startingPosition} icon={<Building strokeWidth={1.5} />}>
+				<div className="overflow-y-scroll w-full h-full px-4 py-4 flex flex-col gap-2 rounded-b-xl">
+					<div className="flex gap-2">
 						<Select
 							value={selectedOrganization}
 							onValueChange={(value) => {
@@ -92,8 +96,8 @@ const OrganizationPanel = ({ startingPosition }: { startingPosition: { x: number
 								localStorage.setItem('selectedOrganization', value);
 							}}
 						>
-							<SelectTrigger className='w-full'>
-								<SelectValue placeholder='Select organization' />
+							<SelectTrigger className="w-full">
+								<SelectValue placeholder="Select organization" />
 							</SelectTrigger>
 							<SelectContent>
 								{user?.organizations?.map((org) => (
@@ -109,52 +113,73 @@ const OrganizationPanel = ({ startingPosition }: { startingPosition: { x: number
 
 					{selectedOrganization != '' && (
 						<DialogTrigger asChild>
-							<Button className='w-full font-bold'>Manage Organization</Button>
+							<Button className="w-full font-bold">Manage Organization</Button>
 						</DialogTrigger>
 					)}
 				</div>
 			</Panel>
 			{selectedOrganization != '' && (
-				<DialogContent className='sm:max-w-md bg-[#ffffff]'>
+				<DialogContent className="sm:max-w-md bg-[#ffffff]">
 					<DialogHeader>
-						<DialogTitle>Manage Organization</DialogTitle>
-						<DialogDescription className='font-merriweather'>Start typing an email to invite members</DialogDescription>
+						<DialogTitle className="text-2xl font-bold">Manage Organization</DialogTitle>
 					</DialogHeader>
 
-					<form className='mt-2 flex flex-col gap-2'>
-						<div className='grid w-full items-center gap-4'>
-							<EmailTagInput selectedEmails={selectedEmails} setSelectedEmails={setSelectedEmails} />
+					<div className="mt-2 flex flex-col gap-2">
+						<p className="text-lg font-semibold">Invite Members</p>
+						<div className="grid w-full items-center gap-4">
+							<EmailTagInput
+								selectedEmails={selectedEmails}
+								setSelectedEmails={setSelectedEmails}
+								pendingInvites={pendingInvites}
+								members={members}
+							/>
 						</div>
-						<Button className='w-full font-bold' onClick={inviteMembers} disabled={selectedEmails.length == 0}>
-							Invite Members
+						<Button className="w-full font-bold" onClick={inviteMembers} disabled={selectedEmails.length == 0}>
+							Send Invites
 						</Button>
-					</form>
+					</div>
 					<div>
-						<p className='text-xl font-bold mb-2'>Members</p>
-						<Input type='text' placeholder='Search for member...' />
-						{members.map((member) => (
-							<div className='flex items-center border-b-2 justify-between'>
-								<div className='flex flex-col py-2 px-6'>
-									<p className='font-semibold'>{member.name}</p>
-									<p className='text-sm -mt-1'>{member.email}</p>
+						<p className="text-lg font-semibold mb-2">Members</p>
+						<div className="relative">
+							<Search className="absolute left-3 top-2.5 h-5 w-5 text-neutral-500 z-20" />
+							<Input
+								type="text"
+								className="pl-10 "
+								placeholder="Search for members..."
+								value={searchValue}
+								onChange={(e) => {
+									setSearchValue(e.target.value.toLowerCase());
+								}}
+							/>
+						</div>
+
+						{pendingInvites
+							.filter((inv) => inv.user.name.toLowerCase().startsWith(searchValue))
+							.map((inv) => (
+								<div key={inv.user.id} className="flex items-center border-b px-2 py-2">
+									<div className="flex flex-col flex-grow min-w-0 px-4 max-w-56">
+										<p className="font-semibold break-words">{inv.user.name}</p>
+										<p className="text-sm break-words -mt-1">{inv.user.email}</p>
+									</div>
+
+									<div className="flex items-center space-x-4 flex-shrink-0 ml-4">
+										<p className="text-sm whitespace-nowrap">Pending</p>
+										<Button variant="destructive" size="sm" className="whitespace-nowrap" onClick={() => removePending(inv.user)}>
+											Cancel
+										</Button>
+									</div>
 								</div>
-								<div className='p-2 px-4 rounded-lg bg-neutral-200 border border-neutral-300 hover:bg-neutral-300 cursor-pointer' onClick={() => removeMember(member)}>
-									<Trash size={20} className='text-red-400' />
+							))}
+						{members
+							.filter((mem) => mem.name.toLowerCase().startsWith(searchValue))
+							.map((member) => (
+								<div className="flex items-center border-b">
+									<div className="flex flex-col py-2 px-6 max-w-96">
+										<p className="font-semibold break-words">{member.name}</p>
+										<p className="text-sm -mt-1 break-words">{member.email}</p>
+									</div>
 								</div>
-							</div>
-						))}
-						{pendingInvites.map((inv) => (
-							<div className='flex items-center justify-between border-b-2'>
-								<div className='flex flex-col py-2 px-6'>
-									<p className='font-semibold'>{inv.user.name}</p>
-									<p className='text-sm -mt-1'>{inv.user.email}</p>
-								</div>
-								<p className='text-sm'>Pending</p>
-                                <div className='p-2 px-4 rounded-lg bg-neutral-200 border border-neutral-300 hover:bg-neutral-300 cursor-pointer' onClick={() => removePending(inv.user)}>
-									<Trash size={20} className='text-red-400' />
-								</div>
-							</div>
-						))}
+							))}
 					</div>
 					<DialogFooter></DialogFooter>
 				</DialogContent>

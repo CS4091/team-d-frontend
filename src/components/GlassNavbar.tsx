@@ -10,6 +10,7 @@ import useMeasure from 'react-use-measure';
 import Logo from './assets/Logo';
 import { Button } from './ui/button';
 import api from '@/lib/axiosConfig';
+import { toast } from 'react-toastify';
 
 export const GlassNavbar = () => {
 	const [menuOpen, setMenuOpen] = useState(false);
@@ -35,11 +36,12 @@ export const GlassNavbar = () => {
 		setLoggedIn(false);
 	};
 
-    const acceptInvite = (token: string) => {
+    const acceptInvite = (token: string, name: string) => {
         api.post('/organizations/accept-invite', { token })
         .then((resp) => {
             console.log(resp.data);
             updateUser();
+             toast(`You have successfully joined ${name}!`, {type: "success"})
         })
         .catch((err) => {
             console.log(err);
@@ -105,7 +107,7 @@ export const GlassNavbar = () => {
 														<Button variant={'destructive'} className='w-full'>
 															Decline
 														</Button>
-														<Button className='w-full' onClick={() => acceptInvite(inv.token)}>Accept</Button>
+														<Button className='w-full' onClick={() => acceptInvite(inv.token, inv.organization.name)}>Accept</Button>
 													</div>
 												</div>
 												<DropdownMenuSeparator />
