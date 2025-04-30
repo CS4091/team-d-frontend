@@ -60,7 +60,7 @@ const RoutesPanel = ({
 			strokeWeight: 2
 		});
 
-		polylines.filter((line) => line.get('strokeColor') === '#0000FF').forEach((line) => line.setMap(null));
+		polylines.filter((line) => line.get('strokeColor') !== '#0000FF').forEach((line) => line.setMap(null));
 
 		setPolylines([...polylines.filter((line) => line.get('strokeColor') === '#0000FF'), polyline]);
 		polyline.setMap(mapRef?.current);
