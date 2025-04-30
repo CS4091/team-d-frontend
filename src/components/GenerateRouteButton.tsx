@@ -24,6 +24,7 @@ interface GeneratedRoute {
 		};
 		stats: {
 			fuel: number;
+			time: number;
 		};
 	};
 	optimized: {
@@ -32,6 +33,7 @@ interface GeneratedRoute {
 		};
 		stats: {
 			fuel: number;
+			time: number;
 		};
 	};
 }
