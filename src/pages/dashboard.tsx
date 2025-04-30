@@ -2,6 +2,7 @@ import Controls from '@/components/Controls';
 import InventoryPanel from '@/components/panels/InventoryPanel';
 import OrganizationPanel from '@/components/panels/OrganizationPanel';
 import RoutesPanel from '@/components/panels/RoutesPanel';
+import Taskbar from '@/components/Taskbar';
 import { Airplane } from '@/interfaces/Airplane';
 import { Airport } from '@/interfaces/Airport';
 import { Asset } from '@/interfaces/Asset';
@@ -41,14 +42,19 @@ function Dashboard() {
 
 	const [model, setModel] = useState<Airplane | null>(null);
 
+	const [openRoutesPanel, setOpenRoutesPanel] = useState(true);
+	const [openInventoryPanel, setOpenInventoryPanel] = useState(true);
+	const [openOrganizationPanel, setOpenOrganizationPanel] = useState(true);
+
 	const mapRef = useRef<google.maps.Map | null>(null);
+
 	const router = useRouter();
 
 	const { user, selectedOrganization } = useContext(UserContext);
 
 	const { isLoaded, loadError } = useJsApiLoader({
 		googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!,
-		libraries: libraries
+		libraries: libraries,
 	});
 
 	const handleMapLoad = (map: google.maps.Map) => {
@@ -107,9 +113,9 @@ function Dashboard() {
 					url: `https://maps.google.com/mapfiles/ms/icons/${
 						currentPair.length === 1 && currentPair.find((air) => air == airport) ? 'blue' : 'red'
 					}-dot.png`,
-					scaledSize: new window.google.maps.Size(40, 40)
+					scaledSize: new window.google.maps.Size(40, 40),
 				},
-				zIndex: 99
+				zIndex: 99,
 			});
 
 			marker.addListener('click', () => {
@@ -156,17 +162,17 @@ function Dashboard() {
 						icon: {
 							url: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
 							scaledSize: new google.maps.Size(40, 40),
-							labelOrigin: new google.maps.Point(18.5, 12)
+							labelOrigin: new google.maps.Point(18.5, 12),
 						},
 						label: {
 							text: String(count),
 							color: 'white',
 							fontWeight: 'bold',
-							fontSize: '14px'
-						}
+							fontSize: '14px',
+						},
 					});
-				}
-			}
+				},
+			},
 		});
 
 		clusteredMarkersRef.current = clusteredMarkers;
@@ -209,36 +215,51 @@ function Dashboard() {
 		<div className="h-full overflow-hidden">
 			{selectedOrganization != '' && (
 				<>
-					<RoutesPanel
-						routeList={routeList}
-						setRouteList={setRouteList}
-						polylines={polylines}
-						setPolylines={setPolylines}
-						setCreateNewPair={setCreateNewPair}
-						startingPosition={{ x: 50, y: 400 }}
-						passengers={passengers}
-						setPassengers={setPassengers}
-						currentPair={currentPair}
-						setCurrentPair={setCurrentPair}
-						openRoutes={openRoutes}
-						setOpenRoutes={setOpenRoutes}
-						mapRef={mapRef}
-					/>
-					<InventoryPanel
-						startingPosition={{ x: 50, y: 600 }}
-						setSelectingHomebase={setSelectingHomebase}
-						openInventory={openInventory}
-						setOpenInventory={setOpenInventory}
-						homebase={homebase}
-						setHomebase={setHomebase}
-						model={model}
-						setModel={setModel}
-						inventory={inventory}
-						setInventory={setInventory}
-					/>
+					<div className={`${openRoutesPanel ? '' : 'hidden'}`}>
+						<RoutesPanel
+							routeList={routeList}
+							setRouteList={setRouteList}
+							polylines={polylines}
+							setPolylines={setPolylines}
+							setCreateNewPair={setCreateNewPair}
+							startingPosition={{ x: 50, y: 400 }}
+							passengers={passengers}
+							setPassengers={setPassengers}
+							currentPair={currentPair}
+							setCurrentPair={setCurrentPair}
+							openRoutes={openRoutes}
+							setOpenRoutes={setOpenRoutes}
+							mapRef={mapRef}
+						/>
+					</div>
+					<div className={`${openInventoryPanel ? '' : 'hidden'}`}>
+						<InventoryPanel
+							startingPosition={{ x: 50, y: 600 }}
+							setSelectingHomebase={setSelectingHomebase}
+							openInventory={openInventory}
+							setOpenInventory={setOpenInventory}
+							homebase={homebase}
+							setHomebase={setHomebase}
+							model={model}
+							setModel={setModel}
+							inventory={inventory}
+							setInventory={setInventory}
+						/>
+					</div>
 				</>
 			)}
-			<OrganizationPanel startingPosition={{ x: 50, y: 150 }} />
+			<div className={`${openOrganizationPanel ? '' : 'hidden'}`}>
+				<OrganizationPanel startingPosition={{ x: 50, y: 150 }} />
+			</div>
+
+			<Taskbar
+				setOpenInventoryPanel={setOpenInventoryPanel}
+				setOpenRoutesPanel={setOpenRoutesPanel}
+				setOpenOrganizationPanel={setOpenOrganizationPanel}
+				openInventoryPanel={openInventoryPanel}
+				openRoutesPanel={openRoutesPanel}
+				openOrganizationPanel={openOrganizationPanel}
+			/>
 			<Controls
 				selectedOrganization={selectedOrganization}
 				routeList={routeList}
@@ -253,12 +274,12 @@ function Dashboard() {
 
 									return {
 										lat,
-										lng
+										lng,
 									};
 								}),
 								strokeColor: '#FF61E2',
 								strokeOpacity: 1.0,
-								strokeWeight: 2
+								strokeWeight: 2,
 							});
 
 							line.addListener('click', () => {
@@ -283,7 +304,7 @@ function Dashboard() {
 							line.setMap(mapRef.current);
 
 							return line;
-						})
+						}),
 					]);
 				}}
 			/>
@@ -298,7 +319,8 @@ function Dashboard() {
 						onClick={() => {
 							setCreateNewPair(false);
 							setOpenRoutes(true);
-						}}>
+						}}
+					>
 						Cancel
 					</button>
 				</div>
@@ -311,7 +333,8 @@ function Dashboard() {
 						onClick={() => {
 							setSelectingHomebase(false);
 							setOpenInventory(true);
-						}}>
+						}}
+					>
 						Cancel
 					</button>
 				</div>
@@ -323,7 +346,7 @@ function Dashboard() {
 					width: '100%',
 					height: '100%',
 					backgroundColor: '#000000',
-					zIndex: selectingHomebase || createNewPair ? 50 : 1
+					zIndex: selectingHomebase || createNewPair ? 50 : 1,
 				}}
 				center={center}
 				zoom={4}
@@ -335,18 +358,19 @@ function Dashboard() {
 							north: 85,
 							south: -85,
 							west: -180,
-							east: 180
+							east: 180,
 						},
-						strictBounds: false
+						strictBounds: false,
 					},
 					fullscreenControl: false,
 					fullscreenControlOptions: {
-						position: google.maps.ControlPosition.RIGHT_CENTER
+						position: google.maps.ControlPosition.RIGHT_CENTER,
 					},
 					mapTypeControl: false,
 					styles: darkMapStyle,
-					disableDefaultUI: true
-				}}>
+					disableDefaultUI: true,
+				}}
+			>
 				{selectedAirport && selectedAirport.name != 'None' && (
 					<InfoWindow position={{ lat: selectedAirport.lat, lng: selectedAirport.lng }} onCloseClick={() => setSelectedAirport(null)}>
 						<div className="flex flex-col items-start gap-2 max-w-64">
@@ -361,4 +385,3 @@ function Dashboard() {
 }
 
 export default Dashboard;
-

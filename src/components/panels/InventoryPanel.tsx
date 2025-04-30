@@ -12,6 +12,7 @@ import Panel from '../Panel';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { toast } from 'react-toastify';
+import { motion } from 'framer-motion';
 
 interface Props {
 	startingPosition: { x: number; y: number };
@@ -95,7 +96,13 @@ const InventoryPanel = ({
 			}}
 		>
 			<Panel name="Inventory" startingPosition={startingPosition} icon={<Plane strokeWidth={1.5} />}>
-				<div className="overflow-y-scroll w-full h-full px-4 py-4 flex flex-col gap-2 rounded-b-xl">
+				<motion.div
+					initial={{ opacity: 0, y: 20 }}
+					animate={{ opacity: 1, y: 0 }}
+					exit={{ opacity: 0, y: 20 }}
+					transition={{ duration: 0.3, ease: 'easeOut' }}
+					className="overflow-y-scroll w-full h-full px-4 py-4 flex flex-col gap-2 rounded-b-xl"
+				>
 					<DialogTrigger asChild>
 						<Button className="w-full font-bold">New Plane</Button>
 					</DialogTrigger>
@@ -135,7 +142,7 @@ const InventoryPanel = ({
 							)}
 						</div>
 					))}
-				</div>
+				</motion.div>
 			</Panel>
 			<DialogContent className="sm:max-w-md bg-[#ffffff]">
 				<DialogHeader>
