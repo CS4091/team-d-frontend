@@ -245,22 +245,25 @@ function Dashboard() {
 				addPolylines={(flights) => {
 					setPolylines((polylines) => [
 						...polylines,
-						...flights.map(
-							(flight) =>
-								new google.maps.Polyline({
-									path: flight.map((icao) => {
-										const { lat, lng } = airports.find((airport) => airport.id === icao)!;
+						...flights.map((flight) => {
+							const line = new google.maps.Polyline({
+								path: flight.map((icao) => {
+									const { lat, lng } = airports.find((airport) => airport.id === icao)!;
 
-										return {
-											lat,
-											lng
-										};
-									}),
-									strokeColor: '#00FF00',
-									strokeOpacity: 1.0,
-									strokeWeight: 2
-								})
-						)
+									return {
+										lat,
+										lng
+									};
+								}),
+								strokeColor: '#00FF00',
+								strokeOpacity: 1.0,
+								strokeWeight: 2
+							});
+
+							line.setMap(mapRef.current);
+
+							return line;
+						})
 					]);
 				}}
 			/>
