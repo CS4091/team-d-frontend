@@ -140,14 +140,21 @@ const GenerateRouteButton = ({ selectedOrganization, routeList, inventory, addPo
 					<div className='grid grid-cols-2 gap-x-8'>
 						<div className='flex flex-col'>
 							<p className='font-bold text-xl mb-1'>Baseline Route</p>
-							<p className='mb-2 mt-1 mr-2 font-semibold text-sm font-merriweather bg-gray-600 px-4 py-1 w-fit rounded-full text-white'>
-								${routeData?.baseline.stats.fuel.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-							</p>
-							<p className='text-sm font-semibold text-gray-600'>Time: {routeData?.baseline.stats.time.toFixed(2)} hours</p>
+							<div className='flex items-center mb-2 mt-1'>
+								<p className='mb-2 mt-1 mr-2 font-semibold text-sm font-merriweather bg-gray-500 px-4 py-1 w-fit rounded-full text-white'>
+									{routeData?.baseline.stats.time.toFixed(2)} hrs
+								</p>
+								<p className='mb-2 mt-1 mr-2 font-semibold text-sm font-merriweather bg-gray-700 px-4 py-1 w-fit rounded-full text-white'>
+									${routeData?.baseline.stats.fuel.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+								</p>
+							</div>
 						</div>
 						<div className='flex flex-col'>
 							<p className='font-bold text-xl mb-1'>Optimized Route</p>
 							<div className='flex items-center mb-2 mt-1'>
+								<p className='mr-2 font-semibold text-sm font-merriweather bg-primary px-4 py-1 w-fit rounded-full text-white'>
+									{routeData?.optimized.stats.time.toFixed(2)} hrs
+								</p>
 								<p className='mr-2 font-semibold text-sm font-merriweather bg-pink px-4 py-1 w-fit rounded-full text-white'>
 									${routeData?.optimized.stats.fuel.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
 								</p>
@@ -158,12 +165,11 @@ const GenerateRouteButton = ({ selectedOrganization, routeList, inventory, addPo
 								/>
 								<p
 									className='text-[#3BC183] font-semibold text-sm font-merriweather -ml-1'
-									style={{ color: routeData?.baseline.stats.fuel! - routeData?.optimized.stats.fuel! > 0 ? '#3BC183' : '757575' }}
+									style={{ color: routeData?.baseline.stats.fuel! - routeData?.optimized.stats.fuel! > 0 ? '#3BC183' : '#757575' }}
 								>
 									${(routeData?.baseline.stats.fuel! - routeData?.optimized.stats.fuel!).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
 								</p>
 							</div>
-							<p className='text-sm font-semibold text-gray-600'>Time: {routeData?.optimized.stats.time.toFixed(2)} hours</p>
 						</div>
 					</div>
 
