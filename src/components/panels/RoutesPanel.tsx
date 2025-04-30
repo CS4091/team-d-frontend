@@ -1,14 +1,13 @@
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Airport } from '@/interfaces/Airport';
+import { Route } from '@/interfaces/Route';
 import { Route as RouteIcon } from 'lucide-react';
-import { useState } from 'react';
+import { RefObject, useState } from 'react';
 import { FaTrashCan } from 'react-icons/fa6';
 import Panel from '../Panel';
 import { Button } from '../ui/button';
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Label } from '../ui/label';
 import { Input } from '../ui/input';
-import { Route } from '@/interfaces/Route';
-import { RefObject } from 'react';
+import { Label } from '../ui/label';
 
 interface Props {
 	routeList: Route[];
@@ -16,14 +15,14 @@ interface Props {
 	polylines: google.maps.Polyline[];
 	setPolylines: React.Dispatch<React.SetStateAction<google.maps.Polyline[]>>;
 	currentPair: Airport[];
-    setCurrentPair: React.Dispatch<React.SetStateAction<Airport[]>>;
+	setCurrentPair: React.Dispatch<React.SetStateAction<Airport[]>>;
 	setCreateNewPair: React.Dispatch<React.SetStateAction<boolean>>;
 	startingPosition: { x: number; y: number };
 	passengers: number;
 	setPassengers: React.Dispatch<React.SetStateAction<number>>;
 	openRoutes: boolean;
 	setOpenRoutes: React.Dispatch<React.SetStateAction<boolean>>;
-    mapRef: RefObject<google.maps.Map | null>;
+	mapRef: RefObject<google.maps.Map | null>;
 }
 
 const RoutesPanel = ({
@@ -32,14 +31,14 @@ const RoutesPanel = ({
 	polylines,
 	setPolylines,
 	currentPair,
-    setCurrentPair,
+	setCurrentPair,
 	setCreateNewPair,
 	startingPosition,
 	passengers,
 	setPassengers,
 	openRoutes,
 	setOpenRoutes,
-    mapRef
+	mapRef
 }: Props) => {
 	const [hoveredRoute, setHoveredRoute] = useState<number | null>(null);
 
@@ -51,25 +50,25 @@ const RoutesPanel = ({
 	};
 
 	const addRoute = () => {
-        let polyline = new google.maps.Polyline({
-            path: [
-                { lat: currentPair[0].lat, lng: currentPair[0].lng },
-                { lat: currentPair[1].lat, lng: currentPair[1].lng }
-            ],
-            strokeColor: '#0000FF',
-            strokeOpacity: 1.0,
-            strokeWeight: 2,
-        });
+		let polyline = new google.maps.Polyline({
+			path: [
+				{ lat: currentPair[0].lat, lng: currentPair[0].lng },
+				{ lat: currentPair[1].lat, lng: currentPair[1].lng }
+			],
+			strokeColor: '#0000FF',
+			strokeOpacity: 1.0,
+			strokeWeight: 2
+		});
 
-        setPolylines([...polylines, polyline]);
-        polyline.setMap(mapRef?.current);
+		setPolylines([...polylines.filter((line) => line.get('strokeColor') === '#0000FF'), polyline]);
+		polyline.setMap(mapRef?.current);
 
-        setRouteList([...routeList, {from: currentPair[0], to: currentPair[1], passengers: passengers}]);
+		setRouteList([...routeList, { from: currentPair[0], to: currentPair[1], passengers: passengers }]);
 
-        setCurrentPair([]);
-        setPassengers(1);
-        setOpenRoutes(false);
-    };
+		setCurrentPair([]);
+		setPassengers(1);
+		setOpenRoutes(false);
+	};
 
 	return (
 		<Dialog
@@ -79,27 +78,24 @@ const RoutesPanel = ({
 				if (!isOpen) {
 					setPassengers(0);
 				}
-			}}
-		>
+			}}>
 			<Panel name="Routes" startingPosition={startingPosition} icon={<RouteIcon strokeWidth={1.5} />}>
 				<div className="overflow-y-scroll w-full h-full px-4 py-4 flex flex-col gap-2 rounded-b-xl">
-                    <DialogTrigger asChild>
-					<Button className="w-full font-bold" onClick={() => setOpenRoutes(true)}>
-						Create Route
-					</Button>
-                    </DialogTrigger>
+					<DialogTrigger asChild>
+						<Button className="w-full font-bold" onClick={() => setOpenRoutes(true)}>
+							Create Route
+						</Button>
+					</DialogTrigger>
 					{routeList.map((route, i) => (
 						<div
 							key={`${route.from.name}-${route.to.name}`}
 							onMouseEnter={() => setHoveredRoute(i)}
 							onMouseLeave={() => setHoveredRoute(null)}
-							onClick={() => removeRoute(i)}
-						>
+							onClick={() => removeRoute(i)}>
 							<div
 								className={`flex flex-col bg-gray-200 px-4 py-2 rounded-xl gap-5 relative cursor-pointer h-full transition-all duration-200 ${
 									hoveredRoute === i ? 'bg-red-500 opacity-60' : ''
-								}`}
-							>
+								}`}>
 								{/* <p className='text-lg py-2 font-bold'>{i + 1}</p> */}
 								<div className="grid grid-cols-[4rem_auto] w-full gap-y-1">
 									<p className="text-sm font-bold">FROM</p>
@@ -118,9 +114,8 @@ const RoutesPanel = ({
 										left: '50%',
 										top: '50%',
 										transform: 'translateY(-50%) translateX(-50%)',
-										cursor: 'pointer',
-									}}
-								>
+										cursor: 'pointer'
+									}}>
 									<FaTrashCan color="white" size={24} className="shadow-2xl" />
 								</div>
 							)}
@@ -150,8 +145,7 @@ const RoutesPanel = ({
 									onClick={() => {
 										setOpenRoutes(false);
 										setCreateNewPair(true);
-									}}
-								>
+									}}>
 									Select Path
 								</Button>
 							</div>
@@ -193,3 +187,4 @@ const RoutesPanel = ({
 };
 
 export default RoutesPanel;
+
