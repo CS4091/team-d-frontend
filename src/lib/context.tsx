@@ -66,7 +66,6 @@ export const UserProvider: React.FC<PropsWithChildren> = ({ children }) => {
 			api.get(`/users/me`)
 				.then((resp) => {
 					setUser(resp.data);
-					console.log(resp.data);
 				})
 				.catch((err) => {
 					console.log(err);
