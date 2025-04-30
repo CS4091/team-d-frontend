@@ -58,7 +58,7 @@ const RoutesPanel = ({
             ],
             strokeColor: '#0000FF',
             strokeOpacity: 1.0,
-            strokeWeight: 2
+            strokeWeight: 2,
         });
 
         setPolylines([...polylines, polyline]);

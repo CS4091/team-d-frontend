@@ -12,6 +12,7 @@ import { useRouter } from 'next/router';
 import { useContext, useEffect, useRef, useState } from 'react';
 import { Airplane } from '@/interfaces/Airplane';
 import { Route } from '@/interfaces/Route';
+import { Asset } from '@/interfaces/Asset';
 
 const center = { lat: 39.8283, lng: -98.5795 };
 
@@ -30,6 +31,7 @@ function Dashboard() {
 	const routeMarkersRef = useRef<google.maps.Marker[]>([]);
     
     const [routeList, setRouteList] = useState<Route[]>([]);
+    const [inventory, setInventory] = useState<Asset[]>([]);
 
 	const [selectingHomebase, setSelectingHomebase] = useState(false);
 	const [openInventory, setOpenInventory] = useState(false);
@@ -51,6 +53,18 @@ function Dashboard() {
 	const handleMapLoad = (map: google.maps.Map) => {
 		mapRef.current = map;
 	};
+
+    useEffect(() => {
+        if (selectedOrganization != '') {
+			api.get(`/organizations/${selectedOrganization}/assets`)
+				.then((resp) => {
+					setInventory(resp.data);
+				})
+				.catch((err) => {
+					console.log(err);
+				});
+		}
+    }, [selectedOrganization])
 
 	useEffect(() => {
 		const token = localStorage.getItem('token');
@@ -218,11 +232,13 @@ function Dashboard() {
 						setHomebase={setHomebase}
                         model={model}
                         setModel={setModel}
+                        inventory={inventory}
+                        setInventory={setInventory}
 					/>
 				</>
 			)}
 			<OrganizationPanel startingPosition={{ x: 50, y: 150 }} />
-			<Controls selectedOrganization={selectedOrganization} routeList={routeList} />
+			<Controls selectedOrganization={selectedOrganization} routeList={routeList} inventory={inventory} />
 			{createNewPair && (
                 <div className='absolute top-6 left-1/2 transform -translate-x-1/2 bg-white rounded-xl px-8 text-lg py-3 font-medium shadow-[0px_0px_15px_2px_rgba(255,255,255,0.2)] flex gap-6 items-center justify-center z-[51]'>
                     <div className='flex flex-col'>

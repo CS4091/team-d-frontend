@@ -42,7 +42,6 @@ const OrganizationPanel = ({ startingPosition }: { startingPosition: { x: number
 	useEffect(() => {
 		api.get(`/organizations/${selectedOrganization}`)
 			.then((resp) => {
-				console.log(resp.data);
 				setPendingInvites(resp.data.activeInvites);
 				setMembers(resp.data.users);
 			})
@@ -51,20 +50,27 @@ const OrganizationPanel = ({ startingPosition }: { startingPosition: { x: number
 			});
 	}, [selectedOrganization]);
 
-	const removePending = (member: Member) => {
+	const removePending = (id: string, token: string) => {
+		api.delete(`/organizations/${id}/invite/${token}`)
+			.then((resp) => {
+                setPendingInvites(pendingInvites.filter((inv) => inv.token != token))
+			})
+			.catch((err) => {
+				console.log(err);
+			});
 		return;
 	};
 
 	const inviteMembers = () => {
 		api.post(`/organizations/${selectedOrganization}/invite`, {
-			userId: selectedEmails.map((option: Options) => option.id)[0],
+			userId: selectedEmails.map((option: Options) => option.id),
 		})
 			.then((resp) => {
 				api.get(`/organizations/${selectedOrganization}`)
 					.then((resp) => {
 						setSelectedEmails([]);
 						setPendingInvites(resp.data.activeInvites);
-                        toast("Invite(s) have been sent out!", {type: "success"})
+						toast('Invite(s) have been sent out!', { type: 'success' });
 					})
 					.catch((err) => {
 						console.log(err);
@@ -153,7 +159,7 @@ const OrganizationPanel = ({ startingPosition }: { startingPosition: { x: number
 							/>
 						</div>
 
-						{pendingInvites
+						{pendingInvites && pendingInvites
 							.filter((inv) => inv.user.name.toLowerCase().startsWith(searchValue))
 							.map((inv) => (
 								<div key={inv.user.id} className="flex items-center border-b px-2 py-2">
@@ -164,16 +170,21 @@ const OrganizationPanel = ({ startingPosition }: { startingPosition: { x: number
 
 									<div className="flex items-center space-x-4 flex-shrink-0 ml-4">
 										<p className="text-sm whitespace-nowrap">Pending</p>
-										<Button variant="destructive" size="sm" className="whitespace-nowrap" onClick={() => removePending(inv.user)}>
+										<Button
+											variant="destructive"
+											size="sm"
+											className="whitespace-nowrap"
+											onClick={() => removePending(inv.orgId, inv.token)}
+										>
 											Cancel
 										</Button>
 									</div>
 								</div>
 							))}
-						{members
+						{members && members
 							.filter((mem) => mem.name.toLowerCase().startsWith(searchValue))
 							.map((member) => (
-								<div className="flex items-center border-b">
+								<div className="flex items-center border-b" key={member.id}>
 									<div className="flex flex-col py-2 px-6 max-w-96">
 										<p className="font-semibold break-words">{member.name}</p>
 										<p className="text-sm -mt-1 break-words">{member.email}</p>

@@ -6,25 +6,40 @@ import { useState } from 'react';
 import { Oval } from 'react-loader-spinner';
 import { toast } from 'react-toastify';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Asset } from '@/interfaces/Asset';
+import { RxTriangleDown } from 'react-icons/rx';
+import { ArrowRight } from 'lucide-react';
+import { MdArrowRightAlt } from 'react-icons/md';
 
 interface Props {
 	selectedOrganization: string;
 	routeList: Route[];
+	inventory: Asset[];
 }
 
 interface GeneratedRoute {
-	routing: {
-		id: string[];
+	baseline: {
+		routing: {
+			[routeId: string]: string[];
+		};
+		stats: {
+			fuel: number;
+		};
 	};
-	stats: {
-		fuel: number;
+	optimized: {
+		routing: {
+			[routeId: string]: string[];
+		};
+		stats: {
+			fuel: number;
+		};
 	};
 }
 
-const GenerateRouteButton = ({ selectedOrganization, routeList }: Props) => {
+const GenerateRouteButton = ({ selectedOrganization, routeList, inventory }: Props) => {
 	const [loading, setLoading] = useState(false);
 	const [open, setOpen] = useState(false);
-    const [routeData, setRouteData] = useState<GeneratedRoute | null>(null);
+	const [routeData, setRouteData] = useState<GeneratedRoute | null>(null);
 
 	const calculateRoute = () => {
 		setLoading(true);
@@ -39,15 +54,15 @@ const GenerateRouteButton = ({ selectedOrganization, routeList }: Props) => {
 		})
 			.then((resp) => {
 				console.log(resp.data);
-                setRouteData(resp.data)
+				setRouteData(resp.data);
 				setLoading(false);
 				setOpen(true);
 			})
 			.catch((err) => {
 				console.log(err);
-				if (err.response) {
-					toast(err.response.data.message, { type: 'error' });
-				}
+
+				toast('Something went wrong.', { type: 'error' });
+
 				setLoading(false);
 			});
 	};
@@ -78,33 +93,73 @@ const GenerateRouteButton = ({ selectedOrganization, routeList }: Props) => {
 				)}
 			</button>
 
-			<DialogContent className="sm:max-w-md bg-[#ffffff]">
+			<DialogContent className="bg-[#ffffff] max-w-3xl">
 				<DialogHeader>
-					<DialogTitle className="text-2xl font-bold">Create Route</DialogTitle>
+					<DialogTitle className="text-2xl font-bold">Route Comparison Chart</DialogTitle>
 				</DialogHeader>
 
-				<div className="mt-2">
-					<div className="flex flex-col w-full items-center gap-4">
-						<div className="flex flex-col gap-2 w-full">
-							{/* <Label>Passengers</Label>
-							<div className="flex items-center gap-2">
-								<Input
-									type="number"
-									placeholder="Enter number of passengers"
-									value={passengers}
-									onChange={(e) => setPassengers(parseInt(e.target.value))}
-								/>
-								<Button
-									variant={'secondary'}
-									onClick={() => {
-										setOpenRoutes(false);
-										setCreateNewPair(true);
-									}}
-								>
-									Select Path
-								</Button>
-							</div> */}
+				<div className="flex flex-col gap-2 p-4">
+					<div className="grid grid-cols-2 gap-x-8">
+						<div className="flex flex-col">
+							<p className="font-bold text-xl mb-1">Baseline Route</p>
+							<p className="mb-2 mt-1 mr-2 font-semibold text-sm font-merriweather bg-gray-600 px-4 py-1 w-fit rounded-full text-white">
+								${routeData?.baseline.stats.fuel.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+							</p>
 						</div>
+						<div className="flex flex-col">
+							<p className="font-bold text-xl mb-1">Optimized Route</p>
+							<div className="flex items-center mb-2 mt-1">
+								<p className="mr-2 font-semibold text-sm font-merriweather bg-pink px-4 py-1 w-fit rounded-full text-white">
+									${routeData?.optimized.stats.fuel.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+								</p>
+
+								<RxTriangleDown
+									fontSize={24}
+									color={routeData?.baseline.stats.fuel! - routeData?.optimized.stats.fuel! > 0 ? '#3BC183' : '#757575'}
+								/>
+								<p
+									className="text-[#3BC183] font-semibold text-sm font-merriweather -ml-1"
+									style={{ color: routeData?.baseline.stats.fuel! - routeData?.optimized.stats.fuel! > 0 ? '#3BC183' : '757575' }}
+								>
+									${(routeData?.baseline.stats.fuel! - routeData?.optimized.stats.fuel!).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+								</p>
+							</div>
+						</div>
+					</div>
+
+					<div className="grid grid-cols-2 gap-x-8 gap-y-3">
+						{inventory.map((inv) => (
+							<>
+								<div className="flex flex-col">
+									<div className="flex gap-1 whitespace-nowrap">
+										<p className="font-bold">{inv.manufacturer} -</p>
+										<p className="font-bold font-merriweather">{inv.model}</p>
+									</div>
+									<div className="flex flex-wrap items-center max-w-full overflow-auto">
+										{(routeData?.baseline.routing[inv.id] || []).map((port, i, arr) => (
+											<span key={i} className="flex items-center">
+												<p className="whitespace-nowrap">{port}</p>
+												{i < arr.length - 1 && <MdArrowRightAlt size={20} />}
+											</span>
+										))}
+									</div>
+								</div>
+								<div className="flex flex-col">
+									<div className="flex gap-1 whitespace-nowrap">
+										<p className="font-bold">{inv.manufacturer} -</p>
+										<p className="font-bold font-merriweather">{inv.model}</p>
+									</div>
+									<div className="flex flex-wrap items-center max-w-full overflow-auto">
+										{(routeData?.optimized.routing[inv.id] || []).map((port, i, arr) => (
+											<span key={i} className="flex items-center">
+												<p className="whitespace-nowrap">{port}</p>
+												{i < arr.length - 1 && <MdArrowRightAlt size={20} />}
+											</span>
+										))}
+									</div>
+								</div>
+							</>
+						))}
 					</div>
 				</div>
 			</DialogContent>

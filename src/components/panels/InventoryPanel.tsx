@@ -22,27 +22,27 @@ interface Props {
 	setHomebase: (homebase: { name: string; id: string }) => void;
 	model: Airplane | null;
 	setModel: (model: Airplane | null) => void;
+	inventory: Asset[];
+	setInventory: React.Dispatch<React.SetStateAction<Asset[]>>;
 }
 
-const InventoryPanel = ({ startingPosition, setSelectingHomebase, openInventory, setOpenInventory, homebase, setHomebase, model, setModel }: Props) => {
+const InventoryPanel = ({
+	startingPosition,
+	setSelectingHomebase,
+	openInventory,
+	setOpenInventory,
+	homebase,
+	setHomebase,
+	model,
+	setModel,
+	inventory,
+	setInventory,
+}: Props) => {
 	const { user, selectedOrganization } = useContext(UserContext);
 	const [manufacturer, setManufacturer] = useState('');
 
 	const [modelList, setModelList] = useState<Airplane[]>([]);
-	const [inventory, setInventory] = useState<Asset[]>([]);
 	const [hoveredRoute, setHoveredRoute] = useState<number | null>(null);
-
-	useEffect(() => {
-		if (selectedOrganization != '') {
-			api.get(`/organizations/${selectedOrganization}/assets`)
-				.then((resp) => {
-					setInventory(resp.data);
-				})
-				.catch((err) => {
-					console.log(err);
-				});
-		}
-	}, [selectedOrganization]);
 
 	useEffect(() => {
 		api.get('/aviation/planes')
@@ -66,7 +66,7 @@ const InventoryPanel = ({ startingPosition, setSelectingHomebase, openInventory,
 				setModel(null);
 				setHomebase({ name: '', id: '' });
 				setOpenInventory(false);
-                toast("Successfully created new plane!", {type: "success"})
+				toast('Successfully created new plane!', { type: 'success' });
 			})
 			.catch((err) => {
 				console.log(err);
