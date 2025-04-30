@@ -255,7 +255,7 @@ function Dashboard() {
 										lng
 									};
 								}),
-								strokeColor: '#00FF00',
+								strokeColor: '#FF61E2',
 								strokeOpacity: 1.0,
 								strokeWeight: 2
 							});
