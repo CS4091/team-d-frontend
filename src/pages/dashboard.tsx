@@ -260,6 +260,25 @@ function Dashboard() {
 								strokeWeight: 2
 							});
 
+							line.addListener('click', () => {
+								const infoWindow = new google.maps.InfoWindow({
+									content: `
+										<div>
+											<p><strong>Route Info:</strong></p>
+											<p>From: ${flight[0]}</p>
+											<p>To: ${flight[flight.length - 1]}</p>
+											<p>Stops: ${flight.length - 2}</p>
+										</div>
+									`
+								});
+
+								const midpoint = flight[Math.floor(flight.length / 2)];
+								const { lat, lng } = airports.find((airport) => airport.id === midpoint)!;
+
+								infoWindow.setPosition({ lat, lng });
+								infoWindow.open(mapRef.current);
+							});
+
 							line.setMap(mapRef.current);
 
 							return line;

@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import api from '@/lib/axiosConfig';
@@ -22,8 +22,7 @@ const NewOrganization = () => {
 				console.log(resp);
 				updateUser();
 				setOpen(false);
-                toast("Organization has been created!", {type: "success"})
-                
+				toast('Organization has been created!', { type: 'success' });
 			})
 			.catch((err) => {
 				console.log(err);
@@ -32,12 +31,10 @@ const NewOrganization = () => {
 
 	return (
 		<Dialog open={open} onOpenChange={setOpen}>
-			<DialogTrigger>
-				<Button className='w-fit font-bold gap-1' variant='secondary'>
-					<Plus strokeWidth={3} />
-					New
-				</Button>
-			</DialogTrigger>
+			<Button className='w-fit font-bold gap-1' variant='secondary' onClick={() => setOpen(true)}>
+				<Plus strokeWidth={3} />
+				New
+			</Button>
 
 			<DialogContent className='sm:max-w-md bg-[#ffffff]'>
 				<DialogHeader>
