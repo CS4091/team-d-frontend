@@ -38,6 +38,8 @@ interface GeneratedRoute {
 	};
 }
 
+
+
 const GenerateRouteButton = ({ selectedOrganization, routeList, inventory }: Props) => {
 	const [loading, setLoading] = useState(false);
 	const [open, setOpen] = useState(false);
@@ -55,8 +57,35 @@ const GenerateRouteButton = ({ selectedOrganization, routeList, inventory }: Pro
 			demand: transformedArray,
 		})
 			.then((resp) => {
-				console.log(resp.data);
-				setRouteData(resp.data);
+				const data = resp.data;
+
+				// Calculate total time for baseline and optimized routes
+				const calculateTotalTime = (times: { [key: string]: number }) => {
+					return Object.values(times).reduce((total, time) => total + time, 0);
+				};
+
+				const baselineTotalTime = calculateTotalTime(data.baseline.stats.times);
+				const optimizedTotalTime = calculateTotalTime(data.optimized.stats.times);
+
+				// Update routeData with the calculated total times
+				setRouteData({
+					...data,
+					baseline: {
+						...data.baseline,
+						stats: {
+							...data.baseline.stats,
+							time: baselineTotalTime,
+						},
+					},
+					optimized: {
+						...data.optimized,
+						stats: {
+							...data.optimized.stats,
+							time: optimizedTotalTime,
+						},
+					},
+				});
+
 				setLoading(false);
 				setOpen(true);
 			})
@@ -107,6 +136,9 @@ const GenerateRouteButton = ({ selectedOrganization, routeList, inventory }: Pro
 							<p className="mb-2 mt-1 mr-2 font-semibold text-sm font-merriweather bg-gray-600 px-4 py-1 w-fit rounded-full text-white">
 								${routeData?.baseline.stats.fuel.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
 							</p>
+							<p className="text-sm font-semibold text-gray-600">
+								Time: {routeData?.baseline.stats.time.toFixed(2)} hours
+							</p>
 						</div>
 						<div className="flex flex-col">
 							<p className="font-bold text-xl mb-1">Optimized Route</p>
@@ -126,6 +158,9 @@ const GenerateRouteButton = ({ selectedOrganization, routeList, inventory }: Pro
 									${(routeData?.baseline.stats.fuel! - routeData?.optimized.stats.fuel!).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
 								</p>
 							</div>
+							<p className="text-sm font-semibold text-gray-600">
+								Time: {routeData?.optimized.stats.time.toFixed(2)} hours
+							</p>
 						</div>
 					</div>
 
