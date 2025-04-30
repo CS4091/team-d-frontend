@@ -24,6 +24,9 @@ interface GeneratedRoute {
 		};
 		stats: {
 			fuel: number;
+			times: {
+				[routeId: string]: number;
+			};
 			time: number;
 		};
 	};
@@ -33,6 +36,9 @@ interface GeneratedRoute {
 		};
 		stats: {
 			fuel: number;
+			times: {
+				[routeId: string]: number;
+			};
 			time: number;
 		};
 	};
@@ -50,7 +56,7 @@ const GenerateRouteButton = ({ selectedOrganization, routeList, inventory, addPo
 			to: item.to.id,
 			passengers: item.passengers,
 		}));
-		api.post('/aviation/route', {
+		api.post<GeneratedRoute>('/aviation/route', {
 			organizationId: selectedOrganization,
 			demand: transformedArray,
 		})
@@ -62,6 +68,7 @@ const GenerateRouteButton = ({ selectedOrganization, routeList, inventory, addPo
 					return Object.values(times).reduce((total, time) => total + time, 0);
 				};
 
+				// Pass the `times` object to calculateTotalTime
 				const baselineTotalTime = calculateTotalTime(data.baseline.stats.times);
 				const optimizedTotalTime = calculateTotalTime(data.optimized.stats.times);
 
