@@ -54,11 +54,11 @@ const GenerateRouteButton = ({ selectedOrganization, routeList, inventory, addPo
 		const transformedArray = routeList.map((item) => ({
 			from: item.from.id,
 			to: item.to.id,
-			passengers: item.passengers,
+			passengers: item.passengers
 		}));
 		api.post<GeneratedRoute>('/aviation/route', {
 			organizationId: selectedOrganization,
-			demand: transformedArray,
+			demand: transformedArray
 		})
 			.then((resp) => {
 				const data = resp.data;
@@ -79,16 +79,16 @@ const GenerateRouteButton = ({ selectedOrganization, routeList, inventory, addPo
 						...data.baseline,
 						stats: {
 							...data.baseline.stats,
-							time: baselineTotalTime,
-						},
+							time: baselineTotalTime
+						}
 					},
 					optimized: {
 						...data.optimized,
 						stats: {
 							...data.optimized.stats,
-							time: optimizedTotalTime,
-						},
-					},
+							time: optimizedTotalTime
+						}
+					}
 				});
 
 				setLoading(false);
@@ -143,9 +143,7 @@ const GenerateRouteButton = ({ selectedOrganization, routeList, inventory, addPo
 							<p className='mb-2 mt-1 mr-2 font-semibold text-sm font-merriweather bg-gray-600 px-4 py-1 w-fit rounded-full text-white'>
 								${routeData?.baseline.stats.fuel.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
 							</p>
-							<p className="text-sm font-semibold text-gray-600">
-								Time: {routeData?.baseline.stats.time.toFixed(2)} hours
-							</p>
+							<p className='text-sm font-semibold text-gray-600'>Time: {routeData?.baseline.stats.time.toFixed(2)} hours</p>
 						</div>
 						<div className='flex flex-col'>
 							<p className='font-bold text-xl mb-1'>Optimized Route</p>
@@ -165,46 +163,47 @@ const GenerateRouteButton = ({ selectedOrganization, routeList, inventory, addPo
 									${(routeData?.baseline.stats.fuel! - routeData?.optimized.stats.fuel!).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
 								</p>
 							</div>
-							<p className="text-sm font-semibold text-gray-600">
-								Time: {routeData?.optimized.stats.time.toFixed(2)} hours
-							</p>
+							<p className='text-sm font-semibold text-gray-600'>Time: {routeData?.optimized.stats.time.toFixed(2)} hours</p>
 						</div>
 					</div>
 
 					<div className='grid grid-cols-2 gap-x-8 gap-y-3'>
 						{inventory.map((inv) => (
 							<>
-								<div className='flex flex-col'>
-									<div className='flex gap-1 whitespace-nowrap'>
-										<p className='font-bold'>{inv.manufacturer} -</p>
-										<p className='font-bold font-merriweather'>{inv.model}</p>
+								{routeData?.baseline.routing[inv.id] && routeData?.baseline.routing[inv.id].length > 1 && (
+									<div className='flex flex-col'>
+										<div className='flex gap-1 whitespace-nowrap'>
+											<p className='font-bold'>{inv.manufacturer} -</p>
+											<p className='font-bold font-merriweather'>{inv.model}</p>
+										</div>
+										<div className='flex flex-wrap items-center max-w-full overflow-y-auto overflow-x-hidden break-words'>
+											{(routeData?.baseline.routing[inv.id] || []).map((port, i, arr) => (
+												<span key={i} className='flex items-center'>
+													<p className='break-words whitespace-normal'>{port}</p>
+													{i < arr.length - 1 && <MdArrowRightAlt size={20} />}
+												</span>
+											))}
+										</div>
 									</div>
-                                    <div className='flex flex-wrap items-center max-w-full overflow-y-auto overflow-x-hidden break-words'>
-
-										{(routeData?.baseline.routing[inv.id] || []).map((port, i, arr) => (
-											<span key={i} className='flex items-center'>
-												<p className='break-words whitespace-normal'>
-													{port}
-												</p>
-												{i < arr.length - 1 && <MdArrowRightAlt size={20} />}
-											</span>
-										))}
+								)}
+								{routeData?.optimized.routing[inv.id] && routeData?.optimized.routing[inv.id].length > 1 && (
+									<div className='flex flex-col'>
+										<div className='flex gap-1 whitespace-nowrap'>
+											<p className='font-bold'>{inv.manufacturer} -</p>
+											<p className='font-bold font-merriweather'>{inv.model}</p>
+										</div>
+										<div className='flex flex-wrap items-center max-w-full overflow-auto'>
+											{routeData?.optimized.routing[inv.id] &&
+												routeData?.optimized.routing[inv.id].length > 1 &&
+												(routeData?.optimized.routing[inv.id] || []).map((port, i, arr) => (
+													<span key={i} className='flex items-center'>
+														<p className='whitespace-nowrap'>{port}</p>
+														{i < arr.length - 1 && <MdArrowRightAlt size={20} />}
+													</span>
+												))}
+										</div>
 									</div>
-								</div>
-								<div className='flex flex-col'>
-									<div className='flex gap-1 whitespace-nowrap'>
-										<p className='font-bold'>{inv.manufacturer} -</p>
-										<p className='font-bold font-merriweather'>{inv.model}</p>
-									</div>
-									<div className='flex flex-wrap items-center max-w-full overflow-auto'>
-										{(routeData?.optimized.routing[inv.id] || []).map((port, i, arr) => (
-											<span key={i} className='flex items-center'>
-												<p className='whitespace-nowrap'>{port}</p>
-												{i < arr.length - 1 && <MdArrowRightAlt size={20} />}
-											</span>
-										))}
-									</div>
-								</div>
+								)}
 							</>
 						))}
 					</div>
