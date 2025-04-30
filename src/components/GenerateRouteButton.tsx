@@ -48,11 +48,11 @@ const GenerateRouteButton = ({ selectedOrganization, routeList, inventory, addPo
 		const transformedArray = routeList.map((item) => ({
 			from: item.from.id,
 			to: item.to.id,
-			passengers: item.passengers
+			passengers: item.passengers,
 		}));
-		api.post<GeneratedRoute>('/aviation/route', {
+		api.post('/aviation/route', {
 			organizationId: selectedOrganization,
-			demand: transformedArray
+			demand: transformedArray,
 		})
 			.then((resp) => {
 				const data = resp.data;
