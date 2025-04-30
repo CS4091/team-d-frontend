@@ -63,7 +63,7 @@ const OrganizationPanel = ({ startingPosition }: { startingPosition: { x: number
 
 	const inviteMembers = () => {
 		api.post(`/organizations/${selectedOrganization}/invite`, {
-			userId: selectedEmails.map((option: Options) => option.id),
+			userIds: selectedEmails.map((option: Options) => option.id),
 		})
 			.then((resp) => {
 				api.get(`/organizations/${selectedOrganization}`)
