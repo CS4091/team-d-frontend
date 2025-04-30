@@ -13,6 +13,7 @@ import { Cluster, MarkerClusterer } from '@googlemaps/markerclusterer';
 import { GoogleMap, InfoWindow, useJsApiLoader } from '@react-google-maps/api';
 import { useRouter } from 'next/router';
 import { useContext, useEffect, useRef, useState } from 'react';
+import { MdAirplaneTicket } from 'react-icons/md';
 
 const center = { lat: 39.8283, lng: -98.5795 };
 
@@ -263,13 +264,13 @@ function Dashboard() {
 							line.addListener('click', () => {
 								const infoWindow = new google.maps.InfoWindow({
 									content: `
-										<div>
-											<p><strong>Route Info:</strong></p>
-											<p>From: ${flight[0]}</p>
-											<p>To: ${flight[flight.length - 1]}</p>
-											<p>Stops: ${flight.length - 2}</p>
+										<div style="padding: 10px; font-size: 14px; color: #333; line-height: 1.5; width: 125px; height: 150px;">
+											<p style="margin: 0; font-weight: bold; font-size: 16px;">Route Info:</p>
+											<p style="margin: 5px 0;">From: <span style="color: #007BFF;">${flight[0]}</span></p>
+											<p style="margin: 5px 0;">To: <span style="color: #007BFF;">${flight[flight.length - 1]}</span></p>
+											<p style="margin: 5px 0;">Stops: <span style="color: #FF61E2;">${flight.length - 2}</span></p>
 										</div>
-									`
+									`,
 								});
 
 								const midpoint = flight[Math.floor(flight.length / 2)];
