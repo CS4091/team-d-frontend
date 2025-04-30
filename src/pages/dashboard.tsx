@@ -2,7 +2,10 @@ import Controls from '@/components/Controls';
 import InventoryPanel from '@/components/panels/InventoryPanel';
 import OrganizationPanel from '@/components/panels/OrganizationPanel';
 import RoutesPanel from '@/components/panels/RoutesPanel';
+import { Airplane } from '@/interfaces/Airplane';
 import { Airport } from '@/interfaces/Airport';
+import { Asset } from '@/interfaces/Asset';
+import { Route } from '@/interfaces/Route';
 import api from '@/lib/axiosConfig';
 import { UserContext } from '@/lib/context';
 import { darkMapStyle } from '@/lib/mapStyle';
@@ -10,9 +13,6 @@ import { Cluster, MarkerClusterer } from '@googlemaps/markerclusterer';
 import { GoogleMap, InfoWindow, useJsApiLoader } from '@react-google-maps/api';
 import { useRouter } from 'next/router';
 import { useContext, useEffect, useRef, useState } from 'react';
-import { Airplane } from '@/interfaces/Airplane';
-import { Route } from '@/interfaces/Route';
-import { Asset } from '@/interfaces/Asset';
 
 const center = { lat: 39.8283, lng: -98.5795 };
 
@@ -24,21 +24,21 @@ function Dashboard() {
 	const [currentPair, setCurrentPair] = useState<Airport[]>([]);
 	const [polylines, setPolylines] = useState<google.maps.Polyline[]>([]);
 	const [createNewPair, setCreateNewPair] = useState(false);
-    const [passengers, setPassengers] = useState(1);
+	const [passengers, setPassengers] = useState(1);
 
 	const clustererRef = useRef<MarkerClusterer | null>(null);
 	const clusteredMarkersRef = useRef<google.maps.Marker[]>([]);
 	const routeMarkersRef = useRef<google.maps.Marker[]>([]);
-    
-    const [routeList, setRouteList] = useState<Route[]>([]);
-    const [inventory, setInventory] = useState<Asset[]>([]);
+
+	const [routeList, setRouteList] = useState<Route[]>([]);
+	const [inventory, setInventory] = useState<Asset[]>([]);
 
 	const [selectingHomebase, setSelectingHomebase] = useState(false);
 	const [openInventory, setOpenInventory] = useState(false);
 	const [openRoutes, setOpenRoutes] = useState(false);
 	const [homebase, setHomebase] = useState<{ name: string; id: string }>({ name: '', id: '' });
 
-    const [model, setModel] = useState<Airplane | null>(null);
+	const [model, setModel] = useState<Airplane | null>(null);
 
 	const mapRef = useRef<google.maps.Map | null>(null);
 	const router = useRouter();
@@ -54,8 +54,8 @@ function Dashboard() {
 		mapRef.current = map;
 	};
 
-    useEffect(() => {
-        if (selectedOrganization != '') {
+	useEffect(() => {
+		if (selectedOrganization != '') {
 			api.get(`/organizations/${selectedOrganization}/assets`)
 				.then((resp) => {
 					setInventory(resp.data);
@@ -64,7 +64,7 @@ function Dashboard() {
 					console.log(err);
 				});
 		}
-    }, [selectedOrganization])
+	}, [selectedOrganization]);
 
 	useEffect(() => {
 		const token = localStorage.getItem('token');
@@ -95,16 +95,17 @@ function Dashboard() {
 		const routeMarkers: google.maps.Marker[] = [];
 
 		airports.forEach((airport) => {
-            if (model && airport.runways.some(runway => runway.length < model.takeoffRunway)) {
-                return;
-            }
-        
+			if (model && airport.runways.some((runway) => runway.length < model.takeoffRunway)) {
+				return;
+			}
 
 			const marker = new google.maps.Marker({
 				position: { lat: airport.lat, lng: airport.lng },
 				title: airport.name,
 				icon: {
-					url: `https://maps.google.com/mapfiles/ms/icons/${currentPair.length === 1 && currentPair.find((air) => air == airport) ? 'blue' : 'red'}-dot.png`,
+					url: `https://maps.google.com/mapfiles/ms/icons/${
+						currentPair.length === 1 && currentPair.find((air) => air == airport) ? 'blue' : 'red'
+					}-dot.png`,
 					scaledSize: new window.google.maps.Size(40, 40)
 				},
 				zIndex: 99
@@ -184,10 +185,9 @@ function Dashboard() {
 			return;
 		}
 		if (currentPair.length == 1) {
-			
-            setCurrentPair([...currentPair, airport])
+			setCurrentPair([...currentPair, airport]);
 			setCreateNewPair(false);
-            setOpenRoutes(true);
+			setOpenRoutes(true);
 		} else {
 			setCurrentPair([airport]);
 		}
@@ -202,10 +202,10 @@ function Dashboard() {
 	};
 
 	if (loadError) return <div>Error loading maps</div>;
-	if (!isLoaded) return <div className='text-center p-10'>Loading map...</div>;
+	if (!isLoaded) return <div className="text-center p-10">Loading map...</div>;
 
 	return (
-		<div className='h-full overflow-hidden'>
+		<div className="h-full overflow-hidden">
 			{selectedOrganization != '' && (
 				<>
 					<RoutesPanel
@@ -215,13 +215,13 @@ function Dashboard() {
 						setPolylines={setPolylines}
 						setCreateNewPair={setCreateNewPair}
 						startingPosition={{ x: 50, y: 400 }}
-                        passengers={passengers}
-                        setPassengers={setPassengers}
-                        currentPair={currentPair}
-                        setCurrentPair={setCurrentPair}
-                        openRoutes={openRoutes}
-                        setOpenRoutes={setOpenRoutes}
-                        mapRef={mapRef}
+						passengers={passengers}
+						setPassengers={setPassengers}
+						currentPair={currentPair}
+						setCurrentPair={setCurrentPair}
+						openRoutes={openRoutes}
+						setOpenRoutes={setOpenRoutes}
+						mapRef={mapRef}
 					/>
 					<InventoryPanel
 						startingPosition={{ x: 50, y: 600 }}
@@ -230,43 +230,65 @@ function Dashboard() {
 						setOpenInventory={setOpenInventory}
 						homebase={homebase}
 						setHomebase={setHomebase}
-                        model={model}
-                        setModel={setModel}
-                        inventory={inventory}
-                        setInventory={setInventory}
+						model={model}
+						setModel={setModel}
+						inventory={inventory}
+						setInventory={setInventory}
 					/>
 				</>
 			)}
 			<OrganizationPanel startingPosition={{ x: 50, y: 150 }} />
-			<Controls selectedOrganization={selectedOrganization} routeList={routeList} inventory={inventory} />
-			{createNewPair && (
-                <div className='absolute top-6 left-1/2 transform -translate-x-1/2 bg-white rounded-xl px-8 text-lg py-3 font-medium shadow-[0px_0px_15px_2px_rgba(255,255,255,0.2)] flex gap-6 items-center justify-center z-[51]'>
-                    <div className='flex flex-col'>
+			<Controls
+				selectedOrganization={selectedOrganization}
+				routeList={routeList}
+				inventory={inventory}
+				addPolylines={(flights) => {
+					setPolylines((polylines) => [
+						...polylines,
+						...flights.map(
+							(flight) =>
+								new google.maps.Polyline({
+									path: flight.map((icao) => {
+										const { lat, lng } = airports.find((airport) => airport.id === icao)!;
 
-					<p className='font-semibold'>Select markers to create route</p>
-                    <p className='text-sm text-neutral-400'>Tap selected marker to unselect</p>
-                    </div>
+										return {
+											lat,
+											lng
+										};
+									}),
+									strokeColor: '#00FF00',
+									strokeOpacity: 1.0,
+									strokeWeight: 2
+								})
+						)
+					]);
+				}}
+			/>
+			{createNewPair && (
+				<div className="absolute top-6 left-1/2 transform -translate-x-1/2 bg-white rounded-xl px-8 text-lg py-3 font-medium shadow-[0px_0px_15px_2px_rgba(255,255,255,0.2)] flex gap-6 items-center justify-center z-[51]">
+					<div className="flex flex-col">
+						<p className="font-semibold">Select markers to create route</p>
+						<p className="text-sm text-neutral-400">Tap selected marker to unselect</p>
+					</div>
 					<button
-						className='bg-red-200 px-5 py-1 rounded-lg text-red-600 hover:bg-red-300 font-medium'
+						className="bg-red-200 px-5 py-1 rounded-lg text-red-600 hover:bg-red-300 font-medium"
 						onClick={() => {
 							setCreateNewPair(false);
 							setOpenRoutes(true);
-						}}
-					>
+						}}>
 						Cancel
 					</button>
 				</div>
 			)}
 			{selectingHomebase && (
-				<div className='absolute top-6 left-1/2 transform -translate-x-1/2 bg-white rounded-xl px-8 text-lg py-3 font-medium shadow-[0px_0px_15px_2px_rgba(255,255,255,0.2)] flex gap-6 items-center justify-center z-[51]'>
-					<p className='font-semibold'>Select a marker to set the homebase</p>
+				<div className="absolute top-6 left-1/2 transform -translate-x-1/2 bg-white rounded-xl px-8 text-lg py-3 font-medium shadow-[0px_0px_15px_2px_rgba(255,255,255,0.2)] flex gap-6 items-center justify-center z-[51]">
+					<p className="font-semibold">Select a marker to set the homebase</p>
 					<button
-						className='bg-red-200 px-5 py-1 rounded-lg text-red-600 hover:bg-red-300 font-medium'
+						className="bg-red-200 px-5 py-1 rounded-lg text-red-600 hover:bg-red-300 font-medium"
 						onClick={() => {
 							setSelectingHomebase(false);
 							setOpenInventory(true);
-						}}
-					>
+						}}>
 						Cancel
 					</button>
 				</div>
@@ -278,7 +300,7 @@ function Dashboard() {
 					width: '100%',
 					height: '100%',
 					backgroundColor: '#000000',
-					zIndex: (selectingHomebase || createNewPair) ? 50 : 1
+					zIndex: selectingHomebase || createNewPair ? 50 : 1
 				}}
 				center={center}
 				zoom={4}
@@ -301,16 +323,12 @@ function Dashboard() {
 					mapTypeControl: false,
 					styles: darkMapStyle,
 					disableDefaultUI: true
-				}}
-			>
+				}}>
 				{selectedAirport && selectedAirport.name != 'None' && (
-					<InfoWindow
-						position={{ lat: selectedAirport.lat, lng: selectedAirport.lng }}
-						onCloseClick={() => setSelectedAirport(null)}
-					>
-						<div className='flex flex-col items-start gap-2 max-w-64'>
-							<p className='text-[16px] font-bold'>{selectedAirport.name}</p>
-							<p className='text-[15px] font-medium text-neutral-500'>Airport ID - {selectedAirport.id}</p>
+					<InfoWindow position={{ lat: selectedAirport.lat, lng: selectedAirport.lng }} onCloseClick={() => setSelectedAirport(null)}>
+						<div className="flex flex-col items-start gap-2 max-w-64">
+							<p className="text-[16px] font-bold">{selectedAirport.name}</p>
+							<p className="text-[15px] font-medium text-neutral-500">Airport ID - {selectedAirport.id}</p>
 						</div>
 					</InfoWindow>
 				)}
@@ -320,3 +338,4 @@ function Dashboard() {
 }
 
 export default Dashboard;
+

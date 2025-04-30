@@ -1,20 +1,20 @@
-import { Airport } from '@/interfaces/Airport';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Asset } from '@/interfaces/Asset';
 import { Route } from '@/interfaces/Route';
 import api from '@/lib/axiosConfig';
 import { WandSparkles } from 'lucide-react';
 import { useState } from 'react';
+import { MdArrowRightAlt } from 'react-icons/md';
+import { RxTriangleDown } from 'react-icons/rx';
 import { Oval } from 'react-loader-spinner';
 import { toast } from 'react-toastify';
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Asset } from '@/interfaces/Asset';
-import { RxTriangleDown } from 'react-icons/rx';
-import { ArrowRight } from 'lucide-react';
-import { MdArrowRightAlt } from 'react-icons/md';
 
 interface Props {
 	selectedOrganization: string;
 	routeList: Route[];
 	inventory: Asset[];
+
+	addPolylines: (flights: string[][]) => void;
 }
 
 interface GeneratedRoute {
@@ -36,7 +36,7 @@ interface GeneratedRoute {
 	};
 }
 
-const GenerateRouteButton = ({ selectedOrganization, routeList, inventory }: Props) => {
+const GenerateRouteButton = ({ selectedOrganization, routeList, inventory, addPolylines }: Props) => {
 	const [loading, setLoading] = useState(false);
 	const [open, setOpen] = useState(false);
 	const [routeData, setRouteData] = useState<GeneratedRoute | null>(null);
@@ -46,17 +46,19 @@ const GenerateRouteButton = ({ selectedOrganization, routeList, inventory }: Pro
 		const transformedArray = routeList.map((item) => ({
 			from: item.from.id,
 			to: item.to.id,
-			passengers: item.passengers,
+			passengers: item.passengers
 		}));
-		api.post('/aviation/route', {
+		api.post<GeneratedRoute>('/aviation/route', {
 			organizationId: selectedOrganization,
-			demand: transformedArray,
+			demand: transformedArray
 		})
 			.then((resp) => {
 				console.log(resp.data);
 				setRouteData(resp.data);
 				setLoading(false);
 				setOpen(true);
+
+				addPolylines(Object.values(resp.data.optimized.routing));
 			})
 			.catch((err) => {
 				console.log(err);
@@ -72,13 +74,11 @@ const GenerateRouteButton = ({ selectedOrganization, routeList, inventory }: Pro
 			open={open}
 			onOpenChange={(isOpen) => {
 				setOpen(isOpen);
-			}}
-		>
+			}}>
 			<button
 				onClick={calculateRoute}
 				disabled={routeList.length === 0 || loading}
-				className="relative bg-gradient-to-r from-pink to-primary bg-[length:200%_200%] bg-[position:0%_50%] py-3 px-12 rounded-xl text-white font-bold transition-all duration-500 ease-in-out enabled:hover:bg-[position:100%_50%] enabled:hover:shadow-xl disabled:opacity-50"
-			>
+				className="relative bg-gradient-to-r from-pink to-primary bg-[length:200%_200%] bg-[position:0%_50%] py-3 px-12 rounded-xl text-white font-bold transition-all duration-500 ease-in-out enabled:hover:bg-[position:100%_50%] enabled:hover:shadow-xl disabled:opacity-50">
 				{!loading && (
 					<>
 						<WandSparkles className="inline mr-2 relative z-10" size={20} />
@@ -119,8 +119,7 @@ const GenerateRouteButton = ({ selectedOrganization, routeList, inventory }: Pro
 								/>
 								<p
 									className="text-[#3BC183] font-semibold text-sm font-merriweather -ml-1"
-									style={{ color: routeData?.baseline.stats.fuel! - routeData?.optimized.stats.fuel! > 0 ? '#3BC183' : '757575' }}
-								>
+									style={{ color: routeData?.baseline.stats.fuel! - routeData?.optimized.stats.fuel! > 0 ? '#3BC183' : '757575' }}>
 									${(routeData?.baseline.stats.fuel! - routeData?.optimized.stats.fuel!).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
 								</p>
 							</div>
@@ -168,3 +167,4 @@ const GenerateRouteButton = ({ selectedOrganization, routeList, inventory }: Pro
 };
 
 export default GenerateRouteButton;
+
