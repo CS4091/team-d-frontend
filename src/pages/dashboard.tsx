@@ -2,6 +2,7 @@ import Controls from '@/components/Controls';
 import InventoryPanel from '@/components/panels/InventoryPanel';
 import OrganizationPanel from '@/components/panels/OrganizationPanel';
 import RoutesPanel from '@/components/panels/RoutesPanel';
+import SearchPanel from '@/components/panels/SearchPanel';
 import Taskbar from '@/components/Taskbar';
 import { Airplane } from '@/interfaces/Airplane';
 import { Airport } from '@/interfaces/Airport';
@@ -246,6 +247,11 @@ function Dashboard() {
 							setInventory={setInventory}
 						/>
 					</div>
+					<SearchPanel
+						airports={airports}
+						mapRef={mapRef}
+						startingPosition={{ x: 50, y: 800 }}
+					/>
 				</>
 			)}
 			<div className={`${openOrganizationPanel ? '' : 'hidden'}`}>
