@@ -22,14 +22,14 @@ const HistoryButton = ({ setHasRoute, selectedOrganization, routeList, inventory
 	const [selected, setSelected] = useState<GeneratedRoute | null>(null);
 	const [open, setOpen] = useState(false);
 
-	console.log(routeHistory);
-
 	return (
 		<Dialog
 			open={open}
 			onOpenChange={(isOpen) => {
-				setOpen(isOpen);
-                setSelected(null);
+				if (selected == null) {
+					setOpen(isOpen);
+				}
+				setSelected(null);
 			}}
 		>
 			<button
@@ -46,10 +46,38 @@ const HistoryButton = ({ setHasRoute, selectedOrganization, routeList, inventory
 					</DialogHeader>
 					<div>
 						{routeHistory.map((route) => (
-							<div className='hover:bg-neutral-200 cursor-pointer' onClick={() => setSelected(route.data)}>
-								<p>{route.id}</p>
+							<div className='py-2 px-4 rounded-md hover:bg-neutral-200 cursor-pointer' onClick={() => setSelected(route?.data)}>
+								<div className='flex items-center mb-2 mt-1 flex-wrap gap-2'>
+									<p className='mr-auto font-merriweather'>{new Date(route.createdAt).toLocaleString()}</p>
+									<p className='font-semibold text-sm font-merriweather bg-primary px-4 py-1 w-[100px] text-center rounded-full text-white'>
+										{route?.data?.optimized.stats.time.toFixed(2)} hrs
+									</p>
+									<div className='flex items-center gap-2'>
+										<p className='font-semibold text-sm font-merriweather bg-pink px-4 py-1 w-[120px] text-center rounded-full text-white'>
+											${route?.data?.optimized.stats.fuel.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+										</p>
+										<div className='flex items-center w-[100px] justify-end'>
+											<RxTriangleDown
+												fontSize={24}
+												color={route?.data?.baseline.stats.fuel! - route?.data?.optimized.stats.fuel! > 0 ? '#3BC183' : '#757575'}
+											/>
+											<p
+												className='font-semibold text-sm font-merriweather -ml-1'
+												style={{
+													color: route?.data?.baseline.stats.fuel! - route?.data?.optimized.stats.fuel! > 0 ? '#3BC183' : '#757575'
+												}}
+											>
+												$
+												{(route?.data?.baseline.stats.fuel! - route?.data?.optimized.stats.fuel!)
+													.toFixed(2)
+													.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+											</p>
+										</div>
+									</div>
+								</div>
 							</div>
 						))}
+
 						{routeHistory.length === 0 && (
 							<div>
 								<p>No history found</p>

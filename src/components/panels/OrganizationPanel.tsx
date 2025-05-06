@@ -81,6 +81,7 @@ const OrganizationPanel = ({
 						}
 					};
 				});
+                enrichedRoutings.sort((a: RouteHistory, b: RouteHistory) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 				setRouteHistory(enrichedRoutings);
 			})
 			.catch((err) => {

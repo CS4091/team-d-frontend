@@ -22,6 +22,7 @@ const center = { lat: 39.8283, lng: -98.5795 };
 const libraries: any[] = ['places'];
 
 export interface RouteHistory {
+    createdAt: string;
 	id: string;
 	orgId: string;
 	data: GeneratedRoute;
@@ -277,6 +278,7 @@ function Dashboard() {
 			/>
 			<Controls
 				routeHistory={routeHistory}
+                setRouteHistory={setRouteHistory}
 				selectedOrganization={selectedOrganization}
 				routeList={routeList}
 				inventory={inventory}

@@ -14,9 +14,10 @@ interface Props {
 	polylines: google.maps.Polyline[];
 	setPolylines: React.Dispatch<React.SetStateAction<google.maps.Polyline[]>>;
 	routeHistory: RouteHistory[];
+    setRouteHistory: React.Dispatch<React.SetStateAction<RouteHistory[]>>;
 }
 
-const Controls = ({ selectedOrganization, routeList, inventory, addPolylines, polylines, setPolylines, routeHistory }: Props) => {
+const Controls = ({ selectedOrganization, routeList, inventory, addPolylines, polylines, setPolylines, routeHistory, setRouteHistory }: Props) => {
 	const [open, setOpen] = useState(false);
 	const [hasRoute, setHasRoute] = useState(false);
 
@@ -54,6 +55,7 @@ const Controls = ({ selectedOrganization, routeList, inventory, addPolylines, po
 				routeList={routeList}
 				inventory={inventory}
 				addPolylines={addPolylines}
+                setRouteHistory={setRouteHistory}
 			/>
 		</div>
 	);

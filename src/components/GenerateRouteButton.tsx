@@ -1,14 +1,15 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Asset } from '@/interfaces/Asset';
+import { GeneratedRoute } from '@/interfaces/GeneratedRoute';
 import { Route } from '@/interfaces/Route';
 import api from '@/lib/axiosConfig';
+import { RouteHistory } from '@/pages/dashboard';
 import { WandSparkles } from 'lucide-react';
 import { useState } from 'react';
 import { MdArrowRightAlt } from 'react-icons/md';
 import { RxTriangleDown } from 'react-icons/rx';
 import { Oval } from 'react-loader-spinner';
 import { toast } from 'react-toastify';
-import { GeneratedRoute } from '@/interfaces/GeneratedRoute';
 
 interface Props {
 	selectedOrganization: string;
@@ -18,10 +19,10 @@ interface Props {
 	setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 	setHasRoute: React.Dispatch<React.SetStateAction<boolean>>;
 	addPolylines: (flights: string[][]) => void;
+	setRouteHistory: React.Dispatch<React.SetStateAction<RouteHistory[]>>;
 }
 
-
-const GenerateRouteButton = ({ setHasRoute, open, setOpen, selectedOrganization, routeList, inventory, addPolylines }: Props) => {
+const GenerateRouteButton = ({ setHasRoute, open, setOpen, selectedOrganization, routeList, inventory, addPolylines, setRouteHistory }: Props) => {
 	const [loading, setLoading] = useState(false);
 	const [routeData, setRouteData] = useState<GeneratedRoute | null>(null);
 
@@ -72,6 +73,42 @@ const GenerateRouteButton = ({ setHasRoute, open, setOpen, selectedOrganization,
 				setOpen(true);
 
 				addPolylines(Object.values(resp.data.optimized.routing));
+				api.get(`/organizations/${selectedOrganization}`)
+					.then((resp) => {
+						const calculateTotalTime = (times: { [key: string]: number }) => {
+							return Object.values(times).reduce((total, time) => total + time, 0);
+						};
+
+						const enrichedRoutings = resp.data.routings.map((routing: any) => {
+							const baselineTotalTime = calculateTotalTime(routing.data.baseline.stats.times);
+							const optimizedTotalTime = calculateTotalTime(routing.data.optimized.stats.times);
+
+							return {
+								...routing,
+								data: {
+									...routing.data,
+									baseline: {
+										...routing.data.baseline,
+										stats: {
+											...routing.data.baseline.stats,
+											time: baselineTotalTime
+										}
+									},
+									optimized: {
+										...routing.data.optimized,
+										stats: {
+											...routing.data.optimized.stats,
+											time: optimizedTotalTime
+										}
+									}
+								}
+							};
+						});
+						setRouteHistory(enrichedRoutings);
+					})
+					.catch((err) => {
+						console.log(err);
+					});
 			})
 			.catch((err) => {
 				console.log(err);
