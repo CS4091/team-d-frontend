@@ -8,6 +8,7 @@ import { MdArrowRightAlt } from 'react-icons/md';
 import { RxTriangleDown } from 'react-icons/rx';
 import { Oval } from 'react-loader-spinner';
 import { toast } from 'react-toastify';
+import { GeneratedRoute } from '@/interfaces/GeneratedRoute';
 
 interface Props {
 	selectedOrganization: string;
@@ -19,32 +20,6 @@ interface Props {
 	addPolylines: (flights: string[][]) => void;
 }
 
-interface GeneratedRoute {
-	baseline: {
-		routing: {
-			[routeId: string]: string[];
-		};
-		stats: {
-			fuel: number;
-			times: {
-				[routeId: string]: number;
-			};
-			time: number;
-		};
-	};
-	optimized: {
-		routing: {
-			[routeId: string]: string[];
-		};
-		stats: {
-			fuel: number;
-			times: {
-				[routeId: string]: number;
-			};
-			time: number;
-		};
-	};
-}
 
 const GenerateRouteButton = ({ setHasRoute, open, setOpen, selectedOrganization, routeList, inventory, addPolylines }: Props) => {
 	const [loading, setLoading] = useState(false);

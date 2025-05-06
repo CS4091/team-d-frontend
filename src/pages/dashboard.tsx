@@ -7,6 +7,7 @@ import Taskbar from '@/components/Taskbar';
 import { Airplane } from '@/interfaces/Airplane';
 import { Airport } from '@/interfaces/Airport';
 import { Asset } from '@/interfaces/Asset';
+import { GeneratedRoute } from '@/interfaces/GeneratedRoute';
 import { Route } from '@/interfaces/Route';
 import api from '@/lib/axiosConfig';
 import { UserContext } from '@/lib/context';
@@ -19,6 +20,12 @@ import { useContext, useEffect, useRef, useState } from 'react';
 const center = { lat: 39.8283, lng: -98.5795 };
 
 const libraries: any[] = ['places'];
+
+export interface RouteHistory {
+	id: string;
+	orgId: string;
+	data: GeneratedRoute;
+}
 
 function Dashboard() {
 	const [airports, setAirports] = useState<Airport[]>([]);
@@ -46,6 +53,8 @@ function Dashboard() {
 	const [openInventoryPanel, setOpenInventoryPanel] = useState(true);
 	const [openOrganizationPanel, setOpenOrganizationPanel] = useState(true);
 	const [openSearchPanel, setOpenSearchPanel] = useState(true);
+
+	const [routeHistory, setRouteHistory] = useState<RouteHistory[]>([]);
 
 	const mapRef = useRef<google.maps.Map | null>(null);
 
@@ -250,7 +259,7 @@ function Dashboard() {
 				</>
 			)}
 			<div className={`${openOrganizationPanel ? '' : 'hidden'}`}>
-				<OrganizationPanel startingPosition={{ x: 50, y: 150 }} />
+				<OrganizationPanel startingPosition={{ x: 50, y: 150 }} setRouteHistory={setRouteHistory} />
 			</div>
 			<div className={`${openSearchPanel ? '' : 'hidden'}`}>
 				<SearchPanel airports={airports} mapRef={mapRef} startingPosition={{ x: window.innerWidth - 350, y: 100 }} />
@@ -267,6 +276,7 @@ function Dashboard() {
 				openOrganizationPanel={openOrganizationPanel}
 			/>
 			<Controls
+				routeHistory={routeHistory}
 				selectedOrganization={selectedOrganization}
 				routeList={routeList}
 				inventory={inventory}
@@ -307,6 +317,8 @@ function Dashboard() {
 
 					setPolylines([...polylines, ...newPolylines]);
 				}}
+				polylines={polylines}
+				setPolylines={setPolylines}
 			/>
 			{createNewPair && (
 				<div className='absolute top-6 left-1/2 transform -translate-x-1/2 bg-white rounded-xl px-8 text-lg py-3 font-medium shadow-[0px_0px_15px_2px_rgba(255,255,255,0.2)] flex gap-6 items-center justify-center z-[51]'>

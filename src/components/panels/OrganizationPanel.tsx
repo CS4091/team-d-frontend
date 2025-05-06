@@ -3,6 +3,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import api from '@/lib/axiosConfig';
 import { UserContext } from '@/lib/context';
+import { RouteHistory } from '@/pages/dashboard';
 import { Building, Search } from 'lucide-react';
 import { useContext, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
@@ -29,7 +30,13 @@ export interface Invite {
 	user: Member;
 }
 
-const OrganizationPanel = ({ startingPosition }: { startingPosition: { x: number; y: number } }) => {
+const OrganizationPanel = ({
+	startingPosition,
+	setRouteHistory
+}: {
+	startingPosition: { x: number; y: number };
+	setRouteHistory: React.Dispatch<React.SetStateAction<RouteHistory[]>>;
+}) => {
 	const [open, setOpen] = useState(false);
 	const [selectedEmails, setSelectedEmails] = useState<Options[]>([]);
 	const [pendingInvites, setPendingInvites] = useState<Invite[]>([]);
@@ -43,7 +50,38 @@ const OrganizationPanel = ({ startingPosition }: { startingPosition: { x: number
 			.then((resp) => {
 				setPendingInvites(resp.data.activeInvites);
 				setMembers(resp.data.users);
-                console.log(resp.data)
+				setRouteHistory(resp.data.routings);
+
+				const calculateTotalTime = (times: { [key: string]: number }) => {
+					return Object.values(times).reduce((total, time) => total + time, 0);
+				};
+
+				const enrichedRoutings = resp.data.routings.map((routing: any) => {
+					const baselineTotalTime = calculateTotalTime(routing.data.baseline.stats.times);
+					const optimizedTotalTime = calculateTotalTime(routing.data.optimized.stats.times);
+
+					return {
+						...routing,
+						data: {
+							...routing.data,
+							baseline: {
+								...routing.data.baseline,
+								stats: {
+									...routing.data.baseline.stats,
+									time: baselineTotalTime
+								}
+							},
+							optimized: {
+								...routing.data.optimized,
+								stats: {
+									...routing.data.optimized.stats,
+									time: optimizedTotalTime
+								}
+							}
+						}
+					};
+				});
+				setRouteHistory(enrichedRoutings);
 			})
 			.catch((err) => {
 				console.log(err);
@@ -63,7 +101,7 @@ const OrganizationPanel = ({ startingPosition }: { startingPosition: { x: number
 
 	const inviteMembers = () => {
 		api.post(`/organizations/${selectedOrganization}/invite`, {
-			userIds: selectedEmails.map((option: Options) => option.id),
+			userIds: selectedEmails.map((option: Options) => option.id)
 		})
 			.then((resp) => {
 				api.get(`/organizations/${selectedOrganization}`)
@@ -91,9 +129,9 @@ const OrganizationPanel = ({ startingPosition }: { startingPosition: { x: number
 				}
 			}}
 		>
-			<Panel name="Organizations" startingPosition={startingPosition} icon={<Building strokeWidth={1.5} />}>
-				<div className="overflow-y-scroll w-full h-full px-4 py-4 flex flex-col gap-2 rounded-b-xl">
-					<div className="flex gap-2">
+			<Panel name='Organizations' startingPosition={startingPosition} icon={<Building strokeWidth={1.5} />}>
+				<div className='overflow-y-scroll w-full h-full px-4 py-4 flex flex-col gap-2 rounded-b-xl'>
+					<div className='flex gap-2'>
 						<Select
 							value={selectedOrganization}
 							onValueChange={(value) => {
@@ -102,8 +140,8 @@ const OrganizationPanel = ({ startingPosition }: { startingPosition: { x: number
 								localStorage.setItem('selectedOrganization', value);
 							}}
 						>
-							<SelectTrigger className="w-full">
-								<SelectValue placeholder="Select organization" />
+							<SelectTrigger className='w-full'>
+								<SelectValue placeholder='Select organization' />
 							</SelectTrigger>
 							<SelectContent>
 								{user?.organizations?.map((org) => (
@@ -118,21 +156,21 @@ const OrganizationPanel = ({ startingPosition }: { startingPosition: { x: number
 					</div>
 
 					{selectedOrganization != '' && (
-						<Button className="w-full font-bold" onClick={() => setOpen(true)}>
+						<Button className='w-full font-bold' onClick={() => setOpen(true)}>
 							Manage Organization
 						</Button>
 					)}
 				</div>
 			</Panel>
 			{selectedOrganization != '' && (
-				<DialogContent className="sm:max-w-md bg-[#ffffff]">
+				<DialogContent className='sm:max-w-md bg-[#ffffff]'>
 					<DialogHeader>
-						<DialogTitle className="text-2xl font-bold">Manage Organization</DialogTitle>
+						<DialogTitle className='text-2xl font-bold'>Manage Organization</DialogTitle>
 					</DialogHeader>
 
-					<div className="mt-2 flex flex-col gap-2">
-						<p className="text-lg font-semibold">Invite Members</p>
-						<div className="grid w-full items-center gap-4">
+					<div className='mt-2 flex flex-col gap-2'>
+						<p className='text-lg font-semibold'>Invite Members</p>
+						<div className='grid w-full items-center gap-4'>
 							<EmailTagInput
 								selectedEmails={selectedEmails}
 								setSelectedEmails={setSelectedEmails}
@@ -140,18 +178,18 @@ const OrganizationPanel = ({ startingPosition }: { startingPosition: { x: number
 								members={members}
 							/>
 						</div>
-						<Button className="w-full font-bold" onClick={inviteMembers} disabled={selectedEmails.length == 0}>
+						<Button className='w-full font-bold' onClick={inviteMembers} disabled={selectedEmails.length == 0}>
 							Send Invites
 						</Button>
 					</div>
 					<div>
-						<p className="text-lg font-semibold mb-2">Members</p>
-						<div className="relative">
-							<Search className="absolute left-3 top-2.5 h-5 w-5 text-neutral-500 z-20" />
+						<p className='text-lg font-semibold mb-2'>Members</p>
+						<div className='relative'>
+							<Search className='absolute left-3 top-2.5 h-5 w-5 text-neutral-500 z-20' />
 							<Input
-								type="text"
-								className="pl-10 "
-								placeholder="Search for members..."
+								type='text'
+								className='pl-10 '
+								placeholder='Search for members...'
 								value={searchValue}
 								onChange={(e) => {
 									setSearchValue(e.target.value.toLowerCase());
@@ -163,18 +201,18 @@ const OrganizationPanel = ({ startingPosition }: { startingPosition: { x: number
 							pendingInvites
 								.filter((inv) => inv.user.name.toLowerCase().startsWith(searchValue))
 								.map((inv) => (
-									<div key={inv.user.id} className="flex items-center border-b px-2 py-2">
-										<div className="flex flex-col flex-grow min-w-0 px-4 max-w-56">
-											<p className="font-semibold break-words">{inv.user.name}</p>
-											<p className="text-sm break-words -mt-1">{inv.user.email}</p>
+									<div key={inv.user.id} className='flex items-center border-b px-2 py-2'>
+										<div className='flex flex-col flex-grow min-w-0 px-4 max-w-56'>
+											<p className='font-semibold break-words'>{inv.user.name}</p>
+											<p className='text-sm break-words -mt-1'>{inv.user.email}</p>
 										</div>
 
-										<div className="flex items-center space-x-4 flex-shrink-0 ml-4">
-											<p className="text-sm whitespace-nowrap">Pending</p>
+										<div className='flex items-center space-x-4 flex-shrink-0 ml-4'>
+											<p className='text-sm whitespace-nowrap'>Pending</p>
 											<Button
-												variant="destructive"
-												size="sm"
-												className="whitespace-nowrap"
+												variant='destructive'
+												size='sm'
+												className='whitespace-nowrap'
 												onClick={() => removePending(inv.orgId, inv.token)}
 											>
 												Cancel
@@ -186,10 +224,10 @@ const OrganizationPanel = ({ startingPosition }: { startingPosition: { x: number
 							members
 								.filter((mem) => mem.name.toLowerCase().startsWith(searchValue))
 								.map((member) => (
-									<div className="flex items-center border-b" key={member.id}>
-										<div className="flex flex-col py-2 px-6 max-w-96">
-											<p className="font-semibold break-words">{member.name}</p>
-											<p className="text-sm -mt-1 break-words">{member.email}</p>
+									<div className='flex items-center border-b' key={member.id}>
+										<div className='flex flex-col py-2 px-6 max-w-96'>
+											<p className='font-semibold break-words'>{member.name}</p>
+											<p className='text-sm -mt-1 break-words'>{member.email}</p>
 										</div>
 									</div>
 								))}
