@@ -78,7 +78,7 @@ const RoutesPanel = ({
 			onOpenChange={(isOpen) => {
 				setOpenRoutes(isOpen);
 				if (!isOpen) {
-					setPassengers(0);
+					setPassengers(1);
 				}
 			}}>
 			<Panel name="Routes" startingPosition={startingPosition} icon={<RouteIcon strokeWidth={1.5} />}>

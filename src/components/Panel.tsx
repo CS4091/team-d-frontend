@@ -13,9 +13,10 @@ interface Props {
 	children: ReactNode;
 	startingPosition: Coords;
 	icon: ReactNode;
+    overlap?: boolean;
 }
 
-const Panel = ({ name, children, startingPosition, icon }: Props) => {
+const Panel = ({ name, children, startingPosition, icon, overlap }: Props) => {
 	const [openPanel, setOpenPanel] = useState(true);
 
 	const wasDragged = useRef(false);
@@ -37,7 +38,7 @@ const Panel = ({ name, children, startingPosition, icon }: Props) => {
 	};
 
 	return (
-		<Draggable startingPosition={startingPosition}>
+		<Draggable startingPosition={startingPosition} overlap={overlap}>
 			{openPanel && (
 				<Resizable
 					minHeight={openPanel ? 130 : 56}

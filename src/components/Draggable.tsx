@@ -5,9 +5,11 @@ type Coords = { x: number; y: number };
 const Draggable = ({
 	startingPosition,
 	children,
+    overlap,
 }: {
 	startingPosition: Coords;
 	children: React.ReactNode;
+    overlap?: boolean;
 }) => {
 	const [position, setPosition] = useState(startingPosition);
 	const draggingRef = useRef(false);
@@ -84,7 +86,8 @@ const Draggable = ({
 				left: `${position.x}px`,
 				top: `${position.y}px`,
 				position: 'absolute',
-				userSelect: 'none'
+				userSelect: 'none',
+                zIndex: overlap ? 51 : '',
 			}}
 			onMouseDown={handleMouseDown}
 		>
