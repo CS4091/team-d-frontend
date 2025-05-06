@@ -253,7 +253,7 @@ function Dashboard() {
 				<OrganizationPanel startingPosition={{ x: 50, y: 150 }} />
 			</div>
 			<div className={`${openSearchPanel ? '' : 'hidden'}`}>
-				<SearchPanel airports={airports} mapRef={mapRef} startingPosition={{ x: 50, y: 800 }} />
+				<SearchPanel airports={airports} mapRef={mapRef} startingPosition={{ x: window.innerWidth - 350, y: 100 }} />
 			</div>
 
 			<Taskbar
@@ -271,47 +271,41 @@ function Dashboard() {
 				routeList={routeList}
 				inventory={inventory}
 				addPolylines={(flights) => {
-					setPolylines((polylines) => [
-						...polylines,
-						...flights.map((flight) => {
-							const line = new google.maps.Polyline({
-								path: flight.map((icao) => {
-									const { lat, lng } = airports.find((airport) => airport.id === icao)!;
+					const newPolylines = flights.map((flight) => {
+						const line = new google.maps.Polyline({
+							path: flight.map((icao) => {
+								const { lat, lng } = airports.find((airport) => airport.id === icao)!;
+								return { lat, lng };
+							}),
+							strokeColor: '#FF61E2',
+							strokeOpacity: 1.0,
+							strokeWeight: 2
+						});
 
-									return {
-										lat,
-										lng
-									};
-								}),
-								strokeColor: '#FF61E2',
-								strokeOpacity: 1.0,
-								strokeWeight: 2
+						line.addListener('click', () => {
+							const infoWindow = new google.maps.InfoWindow({
+								content: `
+					<div style="padding: 10px; font-size: 14px; color: #333; line-height: 1.5; width: 125px; height: 150px;">
+						<p style="margin: 0; font-weight: bold; font-size: 16px;">Route Info:</p>
+						<p style="margin: 5px 0;">From: <span style="color: #007BFF;">${flight[0]}</span></p>
+						<p style="margin: 5px 0;">To: <span style="color: #007BFF;">${flight[flight.length - 1]}</span></p>
+						<p style="margin: 5px 0;">Stops: <span style="color: #FF61E2;">${flight.length - 2}</span></p>
+					</div>
+				`
 							});
 
-							line.addListener('click', () => {
-								const infoWindow = new google.maps.InfoWindow({
-									content: `
-										<div style="padding: 10px; font-size: 14px; color: #333; line-height: 1.5; width: 125px; height: 150px;">
-											<p style="margin: 0; font-weight: bold; font-size: 16px;">Route Info:</p>
-											<p style="margin: 5px 0;">From: <span style="color: #007BFF;">${flight[0]}</span></p>
-											<p style="margin: 5px 0;">To: <span style="color: #007BFF;">${flight[flight.length - 1]}</span></p>
-											<p style="margin: 5px 0;">Stops: <span style="color: #FF61E2;">${flight.length - 2}</span></p>
-										</div>
-									`
-								});
+							const midpoint = flight[Math.floor(flight.length / 2)];
+							const { lat, lng } = airports.find((airport) => airport.id === midpoint)!;
 
-								const midpoint = flight[Math.floor(flight.length / 2)];
-								const { lat, lng } = airports.find((airport) => airport.id === midpoint)!;
+							infoWindow.setPosition({ lat, lng });
+							infoWindow.open(mapRef.current);
+						});
 
-								infoWindow.setPosition({ lat, lng });
-								infoWindow.open(mapRef.current);
-							});
+						line.setMap(mapRef.current);
+						return line;
+					});
 
-							line.setMap(mapRef.current);
-
-							return line;
-						})
-					]);
+					setPolylines([...polylines, ...newPolylines]);
 				}}
 			/>
 			{createNewPair && (

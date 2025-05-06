@@ -43,6 +43,7 @@ const OrganizationPanel = ({ startingPosition }: { startingPosition: { x: number
 			.then((resp) => {
 				setPendingInvites(resp.data.activeInvites);
 				setMembers(resp.data.users);
+                console.log(resp.data)
 			})
 			.catch((err) => {
 				console.log(err);

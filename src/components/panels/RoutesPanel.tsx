@@ -70,6 +70,7 @@ const RoutesPanel = ({
 		setCurrentPair([]);
 		setPassengers(1);
 		setOpenRoutes(false);
+        console.log(polylines)
 	};
 
 	return (
@@ -79,6 +80,7 @@ const RoutesPanel = ({
 				setOpenRoutes(isOpen);
 				if (!isOpen) {
 					setPassengers(1);
+                    setCurrentPair([])
 				}
 			}}>
 			<Panel name="Routes" startingPosition={startingPosition} icon={<RouteIcon strokeWidth={1.5} />}>
