@@ -353,7 +353,7 @@ function Dashboard() {
 					width: '100%',
 					height: '100%',
 					backgroundColor: '#000000',
-					zIndex: selectingHomebase || createNewPair ? 50 : 1
+					zIndex: selectingHomebase || createNewPair ? 49 : 1
 				}}
 				center={center}
 				zoom={4}

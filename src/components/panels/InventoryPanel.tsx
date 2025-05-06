@@ -48,6 +48,7 @@ const InventoryPanel = ({
 	useEffect(() => {
 		api.get('/aviation/planes')
 			.then((resp) => {
+                console.log(resp.data)
 				setModelList(resp.data);
 			})
 			.catch((err) => {

@@ -87,7 +87,7 @@ const Draggable = ({
 				top: `${position.y}px`,
 				position: 'absolute',
 				userSelect: 'none',
-                zIndex: overlap ? 51 : '',
+                zIndex: overlap ? 50 : '',
 			}}
 			onMouseDown={handleMouseDown}
 		>
