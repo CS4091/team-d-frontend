@@ -45,7 +45,7 @@ const HistoryButton = ({ setHasRoute, selectedOrganization, routeList, inventory
 						<DialogTitle className='text-2xl font-bold'>Route History</DialogTitle>
 					</DialogHeader>
 					<div>
-						{routeHistory.map((route) => (
+						{routeHistory?.map((route) => (
 							<div className='py-2 px-4 rounded-md hover:bg-neutral-200 cursor-pointer' onClick={() => setSelected(route?.data)}>
 								<div className='flex items-center mb-2 mt-1 flex-wrap gap-2'>
 									<p className='mr-auto font-merriweather'>{new Date(route.createdAt).toLocaleString()}</p>
@@ -78,7 +78,7 @@ const HistoryButton = ({ setHasRoute, selectedOrganization, routeList, inventory
 							</div>
 						))}
 
-						{routeHistory.length === 0 && (
+						{routeHistory?.length === 0 && (
 							<div>
 								<p>No history found</p>
 							</div>
