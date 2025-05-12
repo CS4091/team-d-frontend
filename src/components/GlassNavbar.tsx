@@ -65,9 +65,9 @@ export const GlassNavbar = () => {
 			initial={{ y: -40, opacity: 0 }}
 			animate={{ y: 0, opacity: 1 }}
 			transition={{ duration: 0.5, ease: 'easeOut' }}
-			className="fixed left-0 right-0 top-0 mx-auto max-w-6xl overflow-hidden border-[1px] border-white/25 bg-gradient-to-br from-white/20 to-white/5 backdrop-blur md:left-6 md:right-6 md:top-6	 md:rounded-3xl z-[48] h-14"
+			className="fixed left-0 right-0 top-0 mx-auto max-w-6xl overflow-hidden border-[1px] border-white/25 bg-gradient-to-br from-white/20 to-white/5 backdrop-blur md:left-6 md:right-6 md:top-6 md:rounded-2xl z-[48]"
 		>
-			<div className="flex items-center justify-between px-4 py-2">
+			<div className="flex items-center justify-between px-5 py-5">
 				<div className="hidden items-center gap-2 md:flex">
 					<GlassLink text="Home" href="/" />
 					{loggedIn && <GlassLink text="Dashboard" href="/dashboard" />}
@@ -128,7 +128,7 @@ export const GlassNavbar = () => {
 								</DropdownMenu>
 
 								<button
-									className="relative scale-100 overflow-hidden rounded-3xl bg-gradient-to-br from-primary from-40% to-[#8FB1F0] px-3 py-2 font-medium text-white transition-transform hover:scale-105 active:scale-95"
+									className="relative scale-100 overflow-hidden rounded-lg bg-gradient-to-br from-primary from-40% to-[#8FB1F0] px-4 py-2 font-medium text-white transition-transform hover:scale-105 active:scale-95"
 									onClick={signOut}
 								>
 									Sign out
